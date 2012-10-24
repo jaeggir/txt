@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <string-array name="channels">
+                <item>SF 1</item>
+                <item>SF zwei</item>
+                <item>SF Info</item>
+                <item>RTS Un</item>
+                <item>RTS Deux</item>
+                <item>RSI LA 1</item>
+                <item>RSI LA 2</item>
+        </string-array>
+</resources>
