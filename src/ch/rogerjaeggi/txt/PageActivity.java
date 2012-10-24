@@ -1,14 +1,17 @@
 package ch.rogerjaeggi.txt;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.Toast;
 import ch.rogerjaeggi.txt.R.anim;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -16,6 +19,8 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class PageActivity extends SherlockActivity {
+	
+	private static final int GO_TO_CODE = 77;
 	
 	private static final String BASE_URL = "http://www.teletext.ch/dynpics/";
 	
@@ -25,9 +30,27 @@ public class PageActivity extends SherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page);
-		setTitle("");
+		setTitle(getTxtApplication().getCurrentChannel().getId() + " - " + getTxtApplication().getCurrentPage());
+		View page = findViewById(R.id.page);
+		page.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(PageActivity.this, GoToActivity.class);
+				startActivityForResult(intent, GO_TO_CODE);
+			}
+		});
         runLoadPageTask(null, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", getCurrentPage(), 0);        
     }
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == GO_TO_CODE && RESULT_OK == resultCode) {
+			runLoadPageTask(null, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", data.getIntExtra(Constants.EXTRA_PAGE, 100), 0);
+		} else {
+			super.onActivityResult(requestCode, resultCode, data);
+		}
+	}
     
     private void runLoadPageTask(final MenuItem item, String baseUrl, final int page, int subIndex) {
     	if (loadPageTask != null) {
@@ -48,14 +71,18 @@ public class PageActivity extends SherlockActivity {
 			@Override
 		    protected void onPostExecute(Bitmap result) {
 				loadPageTask = null;
-				ImageView image = (ImageView) findViewById(R.id.page);
-				image.setImageBitmap(result);
-				image.setVisibility(View.VISIBLE);
-				findViewById(R.id.loading).setVisibility(View.GONE);
-				findViewById(R.id.loadingText).setVisibility(View.GONE);
-				TxtApplication app = (TxtApplication) getApplication();
-				app.setCurrentPage(page); // TODO
-				
+				if (result == null) {
+					Toast.makeText(PageActivity.this, "Page not found", Toast.LENGTH_LONG).show();
+				} else {
+					ImageView image = (ImageView) findViewById(R.id.page);
+					image.setImageBitmap(result);
+					image.setVisibility(View.VISIBLE);
+					findViewById(R.id.loading).setVisibility(View.GONE);
+					findViewById(R.id.loadingText).setVisibility(View.GONE);
+					TxtApplication app = (TxtApplication) getApplication();
+					app.setCurrentPage(page); // TODO
+					setTitle(getTxtApplication().getCurrentChannel().getId() + " - " + getTxtApplication().getCurrentPage());
+				}
 				cancelAnimation();
 				invalidateOptionsMenu();
 		    }
@@ -102,6 +129,10 @@ public class PageActivity extends SherlockActivity {
     	    	item.setEnabled(false);
     			runLoadPageTask(item, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", getCurrentPage() + 1, 0);  
     			return true;
+    		case R.id.menu_goto:
+    			Intent intent = new Intent(PageActivity.this, GoToActivity.class);
+				startActivityForResult(intent, GO_TO_CODE);
+				return true;
     		default:
     			return super.onOptionsItemSelected(item);
     	}

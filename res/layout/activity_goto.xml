@@ -1,0 +1,30 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_centerInParent="true">
+
+    <EditText
+        android:id="@+id/digit1"
+        android:inputType="numberPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLength="1"
+        android:nextFocusDown="@+id/digit2" />
+    <EditText 
+        android:id="@+id/digit2"
+        android:inputType="numberPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/digit1"
+        android:maxLength="1"
+        android:nextFocusDown="@+id/digit3"  />
+    <EditText
+        android:id="@+id/digit3"
+        android:inputType="numberPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/digit2"
+        android:maxLength="1" />
+
+</RelativeLayout>
