@@ -2,5 +2,6 @@
 
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
     <style name="GoToTheme" parent="android:Theme.Holo.Light.Dialog" />
+    <style name="SettingsTheme" parent="android:Theme.Holo" />
     
 </resources>

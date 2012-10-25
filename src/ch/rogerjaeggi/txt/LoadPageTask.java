@@ -44,9 +44,12 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 	@Override
 	protected Bitmap doInBackground(Void... params) {
 		try {
-			return loadPageWithUrlConnection();
+			Bitmap b = loadPageWithUrlConnection();
+			return b;
 		} catch (FileNotFoundException e) {
 			error = e;
+			return null;
+		} catch (IOException e) {
 			return null;
 		}
 	}
@@ -55,8 +58,7 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 		return error == null;
 	}
 
-	private Bitmap loadPageWithUrlConnection() throws FileNotFoundException {
-		Bitmap bitmap = null;
+	private Bitmap loadPageWithUrlConnection() throws IOException, FileNotFoundException {
 		try {
 			URL url = new URL(baseUrl + page + "-0" + subIndex + ".gif");
 			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -70,7 +72,7 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 				}
 				final byte[] imgData = dataStream.toByteArray();
 				BitmapFactory.Options options = new BitmapFactory.Options();
-				bitmap = BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options);
+				return BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options);
 			} catch (FileNotFoundException e) {
 				if (subIndex == 0) {
 					subIndex++;
@@ -79,17 +81,20 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 				Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif, responseCode=" + urlConnection.getResponseCode());
 				if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
 					throw e;
+				} else {
+					return null;
 				}
 			} finally {
-				dataStream.close();
+				try { 
+					dataStream.close(); 
+				} catch (IOException e) {
+					// ignore
+				}
 				urlConnection.disconnect();
 			}
 		} catch (FileNotFoundException e) {
 			throw e;
-		} catch (IOException e) {
-			Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif");
 		}
-		return bitmap;
 	}
 	
 	private void disableConnectionReuseIfNecessary() {
@@ -108,5 +113,5 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 	    	// ignore
 	    }
 	}
-
+	
 }

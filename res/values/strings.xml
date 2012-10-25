@@ -14,5 +14,8 @@
 	<string name="credits_data">Data</string>
 	<string name="errorPageNotFound">Page %d does not exists</string>
 	<string name="errorConnectionProblem">Connection problem occured. You may try again later.</string>
+	<string name="prefsChannelDialogTitle">Choose your channel</string>
+	<string name="prefsChannelTitle">Channel</string>
+	<string name="prefsChannelSummary">Current channel: %s</string>
 
 </resources>

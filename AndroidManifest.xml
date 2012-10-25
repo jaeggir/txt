@@ -25,6 +25,9 @@
             android:name=".GoToActivity"
             android:theme="@style/GoToTheme"
         	android:windowSoftInputMode="stateAlwaysVisible" />
+        <activity
+            android:name=".SettingsActivity"
+            android:theme="@style/SettingsTheme" />
     </application>
 
 </manifest>

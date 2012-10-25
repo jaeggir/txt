@@ -2,5 +2,6 @@
 
     <style name="AppTheme" parent="Theme.Sherlock.Light.DarkActionBar" />
     <style name="GoToTheme" parent="android:Theme.Dialog" />
+    <style name="SettingsTheme" parent="android:Theme" />
 
 </resources>

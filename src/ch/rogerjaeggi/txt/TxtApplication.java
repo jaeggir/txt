@@ -4,8 +4,6 @@ import android.app.Application;
 
 
 public class TxtApplication extends Application {
-
-	private EChannel currentChannel = EChannel.SF1;
 	
 	private int currentPage = 100;
 	
@@ -19,14 +17,6 @@ public class TxtApplication extends Application {
 		return currentPage;
 	}
 
-	public void setCurrentChannel(EChannel channel) {
-		this.currentChannel = channel;
-	}
-	
-	public EChannel getCurrentChannel() {
-		return currentChannel;
-	}
-
 	public int getCurrentPageIndex() {
 		return currentPageIndex;
 	}
@@ -35,6 +25,4 @@ public class TxtApplication extends Application {
 		this.currentPageIndex = index;
 	}
 
-	
-	
 }
