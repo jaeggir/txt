@@ -37,6 +37,10 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 		enableHttpResponseCache(context);
 	}
 	
+	protected int getSubIndex() { 
+		return subIndex;
+	}
+	
 	@Override
 	protected Bitmap doInBackground(Void... params) {
 		try {

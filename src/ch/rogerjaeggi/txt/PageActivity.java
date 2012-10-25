@@ -34,7 +34,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 	private static final int GO_TO_CODE = 77;
 
 	private static final int SWIPE_MIN_DISTANCE = 120;
-	private static final int SWIPE_MAX_OFF_PATH = 250;
 	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
 	private static final String BASE_URL = "http://www.teletext.ch/dynpics/";
@@ -60,8 +59,14 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 			@Override
 			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 				try {
-					if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
-						return false;
+					if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+						if (getCurrentPageIndex() > 0 && getCurrentPage() != 100) {
+							runLoadPageTask(null, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", getCurrentPage(), getCurrentPageIndex() - 1);
+							return true;
+						}
+					} else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+						runLoadPageTask(null, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", getCurrentPage(), getCurrentPageIndex() + 1);
+						return true;
 					} else if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 						if (getTxtApplication().getCurrentPage() < 899) {
 							runLoadPageTask(null, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", getCurrentPage() + 1, 0);
@@ -93,7 +98,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 		page.setOnClickListener(this);
 		page.setOnTouchListener(gestureListener);
 
-		runLoadPageTask(null, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", getCurrentPage(), 0);
+		runLoadPageTask(null, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", getCurrentPage(), getCurrentPageIndex());
 	}
 
 	@Override
@@ -132,19 +137,24 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 				findViewById(R.id.loadingText).setVisibility(View.GONE);
 				ImageView image = (ImageView) findViewById(R.id.page);
 				image.setVisibility(View.VISIBLE);
+				TxtApplication app = (TxtApplication) getApplication();
 				if (result == null) {
-					result = BitmapFactory.decodeResource(getResources(), R.drawable.page_does_not_exists);
-					findViewById(R.id.errorText).setVisibility(View.VISIBLE);
-					if (doesPageExists()) {
-						((TextView) findViewById(R.id.errorText)).setText(R.string.errorConnectionProblem);
+					if (getSubIndex() == 0) {
+						image.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.page_does_not_exists));
+						findViewById(R.id.errorText).setVisibility(View.VISIBLE);
+						if (doesPageExists()) {
+							((TextView) findViewById(R.id.errorText)).setText(R.string.errorConnectionProblem);
+						} else {
+							((TextView) findViewById(R.id.errorText)).setText(String.format(getString(R.string.errorPageNotFound), page));
+						}
 					} else {
-						((TextView) findViewById(R.id.errorText)).setText(String.format(getString(R.string.errorPageNotFound), page));
+						// ignore
 					}
 				} else {
 					findViewById(R.id.errorText).setVisibility(View.GONE);
+					app.setCurrentPageIndex(getSubIndex());
+					image.setImageBitmap(result);
 				}
-				image.setImageBitmap(result);
-				TxtApplication app = (TxtApplication) getApplication();
 				app.setCurrentPage(page);
 				setTitle(getTxtApplication().getCurrentChannel().getId() + " - " + getTxtApplication().getCurrentPage());
 				
@@ -184,7 +194,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 
 				item.setActionView(iv);
 
-				runLoadPageTask(item, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", getCurrentPage(), 0);
+				runLoadPageTask(item, BASE_URL + getTxtApplication().getCurrentChannel().getId() + "/", getCurrentPage(), getCurrentPageIndex());
 				return true;
 			case R.id.menu_backwards:
 				item.setEnabled(false);
@@ -252,6 +262,10 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 
 	private int getCurrentPage() {
 		return getTxtApplication().getCurrentPage();
+	}
+
+	private int getCurrentPageIndex() {
+		return getTxtApplication().getCurrentPageIndex();
 	}
 
 	@Override
