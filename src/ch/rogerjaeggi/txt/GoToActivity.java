@@ -101,7 +101,6 @@ public class GoToActivity extends Activity {
 		});
 		digit3.setSingleLine();
 		digit1.requestFocus();
-		
 	}
 	
 }
