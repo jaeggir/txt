@@ -1,17 +1,20 @@
 package ch.rogerjaeggi.txt;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
@@ -23,83 +26,71 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 	private final String baseUrl;
 	private final int page;
 	private int subIndex;
-	
-	public LoadPageTask(String baseUrl, int page, int subIndex) {
+
+	public LoadPageTask(Context context, String baseUrl, int page, int subIndex) {
 		this.baseUrl = baseUrl;
 		this.page = page;
 		this.subIndex = subIndex;
+		
+		disableConnectionReuseIfNecessary();
+		enableHttpResponseCache(context);
 	}
-	
+
 	@Override
 	protected Bitmap doInBackground(Void... params) {
-		return loadPage();
+		return loadPageWithUrlConnection();
+	}
+
+	private Bitmap loadPageWithUrlConnection() {
+		Bitmap bitmap = null;
+		try {
+			URL url = new URL(baseUrl + page + "-0" + subIndex + ".gif");
+			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+			ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+			try {
+				InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+				final byte[] data = new byte[IO_BUFFER_SIZE];
+				int read = 0;
+				while ((read = in.read(data)) != -1) {
+					dataStream.write(data, 0, read);
+				}
+				final byte[] imgData = dataStream.toByteArray();
+				BitmapFactory.Options options = new BitmapFactory.Options();
+				bitmap = BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options);
+			} finally {
+				dataStream.close();
+				urlConnection.disconnect();
+			}
+		} catch (FileNotFoundException e) {
+			if (subIndex == 0) {
+				subIndex++;
+				return loadPageWithUrlConnection();
+			}
+			Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif");
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif");
+		} catch (IOException e) {
+			e.printStackTrace();
+			Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif");
+		} 
+		return bitmap;
 	}
 	
-	private Bitmap loadPage() {
-		
-	    Bitmap bitmap = null;
-	    InputStream in = null;
-	    BufferedOutputStream out = null;
-		
-		 try {
-				URL pageToLoad = new URL(baseUrl + page + "-0" + subIndex + ".gif");
-		        in = new BufferedInputStream(pageToLoad.openStream(), IO_BUFFER_SIZE);
-
-		        final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-		        out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
-		        copy(in, out);
-		        out.flush();
-
-		        final byte[] data = dataStream.toByteArray();
-		        BitmapFactory.Options options = new BitmapFactory.Options();
-		        //options.inSampleSize = 1;
-
-		        bitmap = BitmapFactory.decodeByteArray(data, 0, data.length,options);
-		 	} catch (FileNotFoundException e) {
-		 		if (subIndex == 0) {
-		 			subIndex++;
-		 			return loadPage();
-		 		}
-		        Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif");
-		 	} catch (IOException e) {
-		    	e.printStackTrace(); // TODO
-		        Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif");
-		    } finally {
-		        closeStream(in);
-		        closeStream(out);
-		    }
-		    return bitmap;
+	private void disableConnectionReuseIfNecessary() {
+	    // HTTP connection reuse which was buggy pre-froyo
+	    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
+	        System.setProperty("http.keepAlive", "false");
+	    }
 	}
-
-	private void closeStream(BufferedOutputStream out) {
-		if (out != null) {
-			try {
-				out.close();
-			} catch (IOException e) {
-				// ignore, we are closing anyway
-			}
-		}
-	}
-
-	private void closeStream(InputStream in) {
-		if (in != null) {
-			try {
-				in.close();
-			} catch (IOException e) {
-				// ignore, we are closing anyway
-			}
-		}
-	}
-
-	private int copy(final InputStream input, final OutputStream output) throws IOException {
-		final byte[] stuff = new byte[1024];
-		int read = 0;
-		int total = 0;
-		while ((read = input.read(stuff)) != -1) {
-			output.write(stuff, 0, read);
-			total += read;
-		}
-		return total;
+	
+	private void enableHttpResponseCache(Context context) {
+	    try {
+	        long httpCacheSize = 1 * 1024 * 1024; // 1 MiB
+	        File httpCacheDir = new File(context.getCacheDir(), "http");
+	        Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class).invoke(null, httpCacheDir, httpCacheSize);
+	    } catch (Exception httpResponseCacheNotAvailable) {
+	    }
 	}
 
 }

@@ -106,7 +106,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 			loadPageTask.cancel(true);
 			loadPageTask = null;
 		}
-		loadPageTask = new LoadPageTask(baseUrl, page, subIndex) {
+		loadPageTask = new LoadPageTask(this, baseUrl, page, subIndex) {
 
 			@Override
 			protected void onCancelled() {
