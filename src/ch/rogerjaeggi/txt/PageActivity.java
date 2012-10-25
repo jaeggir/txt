@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -21,7 +22,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import ch.rogerjaeggi.txt.R.anim;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -128,18 +128,26 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 			@Override
 			protected void onPostExecute(Bitmap result) {
 				loadPageTask = null;
+				findViewById(R.id.loading).setVisibility(View.GONE);
+				findViewById(R.id.loadingText).setVisibility(View.GONE);
+				ImageView image = (ImageView) findViewById(R.id.page);
+				image.setVisibility(View.VISIBLE);
 				if (result == null) {
-					Toast.makeText(PageActivity.this, "Page not found", Toast.LENGTH_LONG).show();
+					result = BitmapFactory.decodeResource(getResources(), R.drawable.page_does_not_exists);
+					findViewById(R.id.errorText).setVisibility(View.VISIBLE);
+					if (doesPageExists()) {
+						((TextView) findViewById(R.id.errorText)).setText(R.string.errorConnectionProblem);
+					} else {
+						((TextView) findViewById(R.id.errorText)).setText(String.format(getString(R.string.errorPageNotFound), page));
+					}
 				} else {
-					ImageView image = (ImageView) findViewById(R.id.page);
-					image.setImageBitmap(result);
-					image.setVisibility(View.VISIBLE);
-					findViewById(R.id.loading).setVisibility(View.GONE);
-					findViewById(R.id.loadingText).setVisibility(View.GONE);
-					TxtApplication app = (TxtApplication) getApplication();
-					app.setCurrentPage(page); // TODO
-					setTitle(getTxtApplication().getCurrentChannel().getId() + " - " + getTxtApplication().getCurrentPage());
+					findViewById(R.id.errorText).setVisibility(View.GONE);
 				}
+				image.setImageBitmap(result);
+				TxtApplication app = (TxtApplication) getApplication();
+				app.setCurrentPage(page);
+				setTitle(getTxtApplication().getCurrentChannel().getId() + " - " + getTxtApplication().getCurrentPage());
+				
 				cancelAnimation();
 				invalidateOptionsMenu();
 			}

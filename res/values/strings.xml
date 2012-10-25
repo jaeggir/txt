@@ -9,8 +9,10 @@
     <string name="menu_settings">Settings</string>
     <string name="title_activity_page">Teletext</string>
     <string name="loading">Loading…</string>
-    <string name="page">SwissTxt page</string>
+    <string name="page">SwissTXT page</string>
     <string name="credits_programming">Programming</string>
 	<string name="credits_data">Data</string>
+	<string name="errorPageNotFound">Page %d does not exists</string>
+	<string name="errorConnectionProblem">Connection problem occured. You may try again later.</string>
 
 </resources>

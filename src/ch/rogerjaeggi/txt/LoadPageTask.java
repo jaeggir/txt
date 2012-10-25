@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.content.Context;
@@ -27,6 +26,8 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 	private final int page;
 	private int subIndex;
 
+	private FileNotFoundException error; 
+	
 	public LoadPageTask(Context context, String baseUrl, int page, int subIndex) {
 		this.baseUrl = baseUrl;
 		this.page = page;
@@ -35,13 +36,22 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 		disableConnectionReuseIfNecessary();
 		enableHttpResponseCache(context);
 	}
-
+	
 	@Override
 	protected Bitmap doInBackground(Void... params) {
-		return loadPageWithUrlConnection();
+		try {
+			return loadPageWithUrlConnection();
+		} catch (FileNotFoundException e) {
+			error = e;
+			return null;
+		}
+	}
+	
+	protected boolean doesPageExists() {
+		return error == null;
 	}
 
-	private Bitmap loadPageWithUrlConnection() {
+	private Bitmap loadPageWithUrlConnection() throws FileNotFoundException {
 		Bitmap bitmap = null;
 		try {
 			URL url = new URL(baseUrl + page + "-0" + subIndex + ".gif");
@@ -57,23 +67,24 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 				final byte[] imgData = dataStream.toByteArray();
 				BitmapFactory.Options options = new BitmapFactory.Options();
 				bitmap = BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options);
+			} catch (FileNotFoundException e) {
+				if (subIndex == 0) {
+					subIndex++;
+					return loadPageWithUrlConnection();
+				}
+				Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif, responseCode=" + urlConnection.getResponseCode());
+				if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+					throw e;
+				}
 			} finally {
 				dataStream.close();
 				urlConnection.disconnect();
 			}
 		} catch (FileNotFoundException e) {
-			if (subIndex == 0) {
-				subIndex++;
-				return loadPageWithUrlConnection();
-			}
-			Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif");
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif");
+			throw e;
 		} catch (IOException e) {
-			e.printStackTrace();
 			Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif");
-		} 
+		}
 		return bitmap;
 	}
 	
@@ -90,6 +101,7 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 	        File httpCacheDir = new File(context.getCacheDir(), "http");
 	        Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class).invoke(null, httpCacheDir, httpCacheSize);
 	    } catch (Exception httpResponseCacheNotAvailable) {
+	    	// ignore
 	    }
 	}
 
