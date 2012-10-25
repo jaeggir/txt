@@ -139,7 +139,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 				image.setVisibility(View.VISIBLE);
 				TxtApplication app = (TxtApplication) getApplication();
 				if (result == null) {
-					if (getSubIndex() == 0) {
+					if (getSubIndex() == 0 || getSubIndex() == 1) {
 						image.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.page_does_not_exists));
 						findViewById(R.id.errorText).setVisibility(View.VISIBLE);
 						if (doesPageExists()) {
