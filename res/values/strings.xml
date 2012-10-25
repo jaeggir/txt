@@ -5,9 +5,12 @@
     <string name="menu_forewards">Next Page</string>
     <string name="menu_refresh">Refresh</string>
     <string name="menu_goto">Go To</string>
+    <string name="menu_credits">Credits</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_page">Teletext</string>
     <string name="loading">Loading…</string>
     <string name="page">SwissTxt page</string>
+    <string name="credits_programming">Programming</string>
+	<string name="credits_data">Data</string>
 
 </resources>

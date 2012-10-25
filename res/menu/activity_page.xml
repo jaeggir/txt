@@ -24,6 +24,12 @@
         android:showAsAction="never"
         android:icon="@android:drawable/ic_menu_search" />
     
+	<item android:id="@+id/menu_credits"
+        android:title="@string/menu_credits"
+        android:orderInCategory="5"
+        android:showAsAction="never"
+        android:icon="@drawable/ic_dialog_info" />
+    
     <item android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
         android:orderInCategory="100"

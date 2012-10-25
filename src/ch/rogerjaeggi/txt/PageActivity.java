@@ -1,10 +1,16 @@
 package ch.rogerjaeggi.txt;
 
+import java.util.Calendar;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
@@ -14,6 +20,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import ch.rogerjaeggi.txt.R.anim;
 
@@ -23,6 +30,7 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class PageActivity extends SherlockActivity implements OnClickListener {
 
+	private static final int DIALOG_CREDITS = 1;
 	private static final int GO_TO_CODE = 77;
 
 	private static final int SWIPE_MIN_DISTANCE = 120;
@@ -38,7 +46,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_page);
 		setTitle(getTxtApplication().getCurrentChannel().getId() + " - " + getTxtApplication().getCurrentPage());
-		
+
 		// Gesture detection
 		final GestureDetector gestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {
 
@@ -182,8 +190,37 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 				Intent intent = new Intent(PageActivity.this, GoToActivity.class);
 				startActivityForResult(intent, GO_TO_CODE);
 				return true;
+			case R.id.menu_credits:
+				showDialog(DIALOG_CREDITS);
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		switch (id) {
+			case DIALOG_CREDITS:
+				  ((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+				  break;
+			default:
+				super.onPrepareDialog(id, dialog);
+		}
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+			case DIALOG_CREDITS:
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setTitle(getString(R.string.menu_credits));
+				String msg = "<b>" + getString(R.string.credits_programming) + ":</b> Roger J&auml;ggi, <a href=http://www.rogerjaeggi.ch>www.rogerjaeggi.ch</a><br /><b>" + getString(R.string.credits_data) + ":</b> SwissTXT, <a href=http://www.swisstxt.ch/>www.swisstxt.ch</a><br /><br />&copy;" + Calendar.getInstance().get(Calendar.YEAR) + " Roger J&auml;ggi, SwissTXT";
+				builder.setMessage(Html.fromHtml(msg.toString()));
+				builder.setCancelable(true);
+				return builder.create();
+			default:
+				return super.onCreateDialog(id);
 		}
 	}
 
