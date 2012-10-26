@@ -14,7 +14,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity android:name=".PageActivity" >
+        <activity android:name=".ui.PageActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,11 +22,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".GoToActivity"
+            android:name=".ui.GoToActivity"
             android:theme="@style/GoToTheme"
         	android:windowSoftInputMode="stateAlwaysVisible" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:theme="@style/SettingsTheme" />
     </application>
 

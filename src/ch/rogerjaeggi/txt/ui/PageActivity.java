@@ -1,4 +1,4 @@
-package ch.rogerjaeggi.txt;
+package ch.rogerjaeggi.txt.ui;
 
 import java.util.Calendar;
 
@@ -21,7 +21,12 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import ch.rogerjaeggi.txt.Constants;
+import ch.rogerjaeggi.txt.LoadPageTask;
+import ch.rogerjaeggi.txt.R;
 import ch.rogerjaeggi.txt.R.anim;
+import ch.rogerjaeggi.txt.Settings;
+import ch.rogerjaeggi.txt.TxtApplication;
 import ch.rogerjaeggi.txt.menu.NextMenuUpdater;
 import ch.rogerjaeggi.txt.menu.PrevMenuUpdater;
 import ch.rogerjaeggi.txt.menu.RefreshMenuUpdater;

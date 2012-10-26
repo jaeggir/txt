@@ -1,4 +1,4 @@
-package ch.rogerjaeggi.txt;
+package ch.rogerjaeggi.txt.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -7,6 +7,9 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import ch.rogerjaeggi.txt.EChannel;
+import ch.rogerjaeggi.txt.R;
+import ch.rogerjaeggi.txt.Settings;
 
 
 public class SettingsActivity extends PreferenceActivity {

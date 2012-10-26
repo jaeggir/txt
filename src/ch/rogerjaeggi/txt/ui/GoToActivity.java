@@ -1,4 +1,4 @@
-package ch.rogerjaeggi.txt;
+package ch.rogerjaeggi.txt.ui;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,6 +11,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
+import ch.rogerjaeggi.txt.Constants;
+import ch.rogerjaeggi.txt.R;
 
 public class GoToActivity extends Activity {
 
