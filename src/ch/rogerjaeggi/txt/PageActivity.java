@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -23,6 +22,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import ch.rogerjaeggi.txt.R.anim;
+import ch.rogerjaeggi.txt.menu.NextMenuUpdater;
+import ch.rogerjaeggi.txt.menu.PrevMenuUpdater;
+import ch.rogerjaeggi.txt.menu.RefreshMenuUpdater;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -40,9 +42,11 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 
 	private static final String BASE_URL = "http://www.teletext.ch/dynpics/";
 	
-	private MenuItem refreshMenuItem;
-
-	AsyncTask<Void, Void, Bitmap> loadPageTask;
+	private PrevMenuUpdater prevMenuUpdater;
+	private NextMenuUpdater nextMenuUpdater;
+	private RefreshMenuUpdater refreshMenuUpdater;
+	
+	LoadPageTask task;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -73,10 +77,9 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 						runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex() + 1);
 						return true;
 					} else if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-						if (getCurrentPage() < 899) {
-							runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() + 1, 0);
-							return true;
-						}
+						int nextPage =getCurrentPage() < 899 ? getCurrentPage() + 1 : 100;
+						runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", nextPage, 0);
+						return true;
 					} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 						if (getCurrentPage() > 100) {
 							runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() - 1, 0);
@@ -90,6 +93,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 			}
 
 		});
+		gestureDetector.setIsLongpressEnabled(false);
+		
 		View page = findViewById(R.id.page);
 		page.setOnClickListener(this);
 		page.setOnTouchListener(new View.OnTouchListener() {
@@ -118,25 +123,49 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 	}
 
 	private void runLoadPageTask(String baseUrl, final int page, int subIndex) {
-		startRefreshMenuEntryAnimation();
-		if (loadPageTask != null) {
-			loadPageTask.cancel(true);
-			loadPageTask = null;
+		if (task != null) {
+			task.cancelRefreshMenuEntryAnimation();
+			task.cancel(true);
 		}
-		loadPageTask = new LoadPageTask(this, baseUrl, page, subIndex) {
+		task = new LoadPageTask(this, baseUrl, page, subIndex) {
+
+			private void startRefreshMenuEntryAnimation() {
+				if (refreshMenuUpdater != null) {
+					LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					ImageView iv = (ImageView) inflater.inflate(R.layout.refresh_action_view, null);
+					
+					Animation rotation = AnimationUtils.loadAnimation(PageActivity.this, anim.refresh_animation);
+					rotation.setRepeatCount(Animation.INFINITE);
+					iv.startAnimation(rotation);
+			
+					refreshMenuUpdater.getMenuItem().setActionView(iv);
+				}
+			}
 
 			@Override
+			public void cancelRefreshMenuEntryAnimation() {
+				if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() != null) {
+					refreshMenuUpdater.getMenuItem().getActionView().clearAnimation();
+					refreshMenuUpdater.getMenuItem().setActionView(null);
+				}
+			}
+			
+			@Override
+			protected void onPreExecute() {
+				startRefreshMenuEntryAnimation();
+				super.onPreExecute();
+			}
+			
+			@Override
 			protected void onCancelled() {
-				loadPageTask = null;
 				cancelRefreshMenuEntryAnimation();
-				invalidateOptionsMenu();
-				// TODO
+				updateMenuItems();
 				super.onCancelled();
 			}
 
 			@Override
 			protected void onPostExecute(Bitmap result) {
-				loadPageTask = null;
+				task = null;
 				findViewById(R.id.loading).setVisibility(View.GONE);
 				findViewById(R.id.loadingText).setVisibility(View.GONE);
 				ImageView image = (ImageView) findViewById(R.id.page);
@@ -164,30 +193,10 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 				setTitle(Integer.toString(getCurrentPage()));
 				
 				cancelRefreshMenuEntryAnimation();
-				invalidateOptionsMenu();
+				updateMenuItems();
 			}
 		};
-		loadPageTask.execute();
-	}
-	
-	public void startRefreshMenuEntryAnimation() {
-		if (refreshMenuItem != null) {
-			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			ImageView iv = (ImageView) inflater.inflate(R.layout.refresh_action_view, null);
-			
-			Animation rotation = AnimationUtils.loadAnimation(this, anim.refresh_animation);
-			rotation.setRepeatCount(Animation.INFINITE);
-			iv.startAnimation(rotation);
-	
-			refreshMenuItem.setActionView(iv);
-		}
-	}
-
-	private void cancelRefreshMenuEntryAnimation() {
-		if (refreshMenuItem != null && refreshMenuItem.getActionView() != null) {
-			refreshMenuItem.getActionView().clearAnimation();
-			refreshMenuItem.setActionView(null);
-		}
+		task.execute();
 	}
 
 	@Override
@@ -286,8 +295,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 
 	@Override
 	protected void onDestroy() {
-		if (loadPageTask != null) {
-			loadPageTask.cancel(true);
+		if (task != null) {
+			task.cancel(true);
 		}
 		super.onDestroy();
 	}
