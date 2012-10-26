@@ -21,7 +21,7 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 
 	private static final String TAG = "txt.pageActivity";
-
+	
 	private final String baseUrl;
 	private final int page;
 	private int subIndex;
@@ -41,11 +41,14 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 		return subIndex;
 	}
 	
+	public void cancelRefreshMenuEntryAnimation() {
+		// empty, override if needed
+	}
+	
 	@Override
 	protected Bitmap doInBackground(Void... params) {
 		try {
-			Bitmap b = loadPageWithUrlConnection();
-			return b;
+			return loadPageWithUrlConnection();
 		} catch (FileNotFoundException e) {
 			error = e;
 			return null;
