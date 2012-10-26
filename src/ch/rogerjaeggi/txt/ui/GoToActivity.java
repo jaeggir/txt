@@ -10,7 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.widget.EditText;
+import android.widget.TextView;
 import ch.rogerjaeggi.txt.Constants;
 import ch.rogerjaeggi.txt.R;
 
@@ -28,13 +28,13 @@ public class GoToActivity extends Activity {
 		@Override
 		public void onClick(View v) {
 			if (newPage.length() < 3) {
-				newPage.setText(newPage.getText().append(Integer.toString(val)));
+				newPage.setText(newPage.getText() + Integer.toString(val));
 			}
 		}
 
 	}
 
-	private EditText newPage;
+	private TextView newPage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class GoToActivity extends Activity {
 		
 		setContentView(R.layout.activity_goto);
 
-		newPage = (EditText) findViewById(R.id.newPage);
+		newPage = (TextView) findViewById(R.id.newPage);
 		newPage.setSingleLine();
 		newPage.addTextChangedListener(new TextWatcher() {
 

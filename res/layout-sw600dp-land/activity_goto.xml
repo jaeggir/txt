@@ -134,6 +134,7 @@
 	        android:orientation="horizontal" >
 	
 	        <Button
+        		android:layout_weight="1"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:minWidth="48dp"
@@ -142,12 +143,13 @@
 	
 	        <Button
 	            android:id="@+id/b0"
+        		android:layout_weight="1"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:minWidth="48dp"
 	            android:textStyle="bold"
 	            android:text="0" />
-
+	
 	        <ImageButton
 	            android:id="@+id/bDel"
 	            android:layout_width="wrap_content"
@@ -155,6 +157,7 @@
 	            android:minWidth="48dp"
 	            android:layout_gravity="center_horizontal|center_vertical"
 	            android:src="@drawable/delete" />
+
 	    </LinearLayout>
 	
 	</LinearLayout>
