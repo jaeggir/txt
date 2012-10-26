@@ -42,7 +42,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 	private static final int GO_TO_CODE = 77;
 	private static final int GO_TO_SETTINGS = 78;
 	
-	private static final int SWIPE_MIN_DISTANCE = 120;
+	private static final int SWIPE_MIN_DISTANCE = 50;
 	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
 	private static final String BASE_URL = "http://www.teletext.ch/dynpics/";
