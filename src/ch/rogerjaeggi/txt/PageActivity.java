@@ -256,20 +256,26 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		refreshMenuItem = menu.findItem(R.id.menu_refresh);
-		
-		MenuItem item = menu.findItem(R.id.menu_backwards);
-		item.setEnabled(getCurrentPage() != 100);
+		prevMenuUpdater = new PrevMenuUpdater(menu.findItem(R.id.menu_backwards));
+		prevMenuUpdater.update(getCurrentPage());
 
-		item = menu.findItem(R.id.menu_forewards);
-		item.setEnabled(getCurrentPage() != 89); // TODO set background image
+		nextMenuUpdater = new NextMenuUpdater(menu.findItem(R.id.menu_forewards));
+		nextMenuUpdater.update(getCurrentPage());
 
-		item = menu.findItem(R.id.menu_refresh);
-		item.setEnabled(true);
+		refreshMenuUpdater = new RefreshMenuUpdater(menu.findItem(R.id.menu_refresh));
+		refreshMenuUpdater.update(getCurrentPage());
 
 		return super.onPrepareOptionsMenu(menu);
 	}
 
+	public void updateMenuItems() {
+		if (prevMenuUpdater != null) {
+			prevMenuUpdater.update(getCurrentPage());
+			nextMenuUpdater.update(getCurrentPage());
+			refreshMenuUpdater.update(getCurrentPage());
+		}
+	}
+	
 	private int getCurrentPage() {
 		return ((TxtApplication) getApplication()).getCurrentPage();
 	}
