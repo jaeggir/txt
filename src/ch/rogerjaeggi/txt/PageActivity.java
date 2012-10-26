@@ -221,10 +221,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 				item.setEnabled(false);
 				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() + 1, 0);
 				return true;
-			case R.id.menu_goto:
-				Intent goTo = new Intent(PageActivity.this, GoToActivity.class);
-				startActivityForResult(goTo, GO_TO_CODE);
-				return true;
 			case R.id.menu_credits:
 				showDialog(DIALOG_CREDITS);
 				return true;

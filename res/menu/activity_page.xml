@@ -17,16 +17,10 @@
         android:orderInCategory="3"
         android:showAsAction="always"
         android:icon="@drawable/ic_menu_refresh" />
-    
-    <item android:id="@+id/menu_goto"
-        android:title="@string/menu_goto"
-        android:orderInCategory="4"
-        android:showAsAction="never"
-        android:icon="@android:drawable/ic_menu_search" />
-    
+        
 	<item android:id="@+id/menu_credits"
         android:title="@string/menu_credits"
-        android:orderInCategory="5"
+        android:orderInCategory="4"
         android:showAsAction="never"
         android:icon="@drawable/ic_dialog_info" />
     
