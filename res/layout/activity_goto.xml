@@ -1,30 +1,162 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_centerInParent="true">
-
-    <EditText
-        android:id="@+id/digit1"
-        android:inputType="numberPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxLength="1"
-        android:nextFocusDown="@+id/digit2" />
-    <EditText 
-        android:id="@+id/digit2"
-        android:inputType="numberPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/digit1"
-        android:maxLength="1"
-        android:nextFocusDown="@+id/digit3"  />
-    <EditText
-        android:id="@+id/digit3"
-        android:inputType="numberPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/digit2"
-        android:maxLength="1" />
-
-</RelativeLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    
+	<LinearLayout
+	    xmlns:tools="http://schemas.android.com/tools"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:paddingTop="16dp"
+	    android:paddingLeft="16dp"
+	    android:paddingBottom="16dp"
+	    android:paddingRight="16dp"
+	    android:gravity="center_vertical|center_horizontal"
+	    android:orientation="vertical" >
+	
+	    <LinearLayout
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal" >
+	
+	        <EditText
+	            android:id="@+id/newPage"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center_horizontal"
+	            android:inputType="numberPassword"
+	            android:enabled="false"
+	            android:textSize="32sp"
+	            android:minWidth="96dp"
+	            android:gravity="center"
+	            android:layout_marginBottom="16dp"
+	            android:layout_marginLeft="16dp"
+	            android:layout_marginRight="16dp"
+	            android:textStyle="bold"
+	            android:textColor="@android:color/white"
+	            android:maxLength="3" />
+	        
+	    </LinearLayout>
+	
+	    <LinearLayout
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal" >
+	
+	        <Button
+	            android:id="@+id/b1"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="1" />
+	
+	        <Button
+	            android:id="@+id/b2"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="2" />
+	
+	        <Button
+	            android:id="@+id/b3"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="3" />
+	    </LinearLayout>
+	
+	    <LinearLayout
+	        xmlns:android="http://schemas.android.com/apk/res/android"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal" >
+	
+	        <Button
+	            android:id="@+id/b4"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="4" />
+	
+	        <Button
+	            android:id="@+id/b5"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="5" />
+	
+	        <Button
+	            android:id="@+id/b6"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="6" />
+	    </LinearLayout>
+	
+	    <LinearLayout
+	        xmlns:android="http://schemas.android.com/apk/res/android"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal" >
+	
+	        <Button
+	            android:id="@+id/b7"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="7" />
+	
+	        <Button android:id="@+id/b8"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="8" />
+	
+	        <Button android:id="@+id/b9"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="9" />
+	    </LinearLayout>
+	
+	    <LinearLayout
+	        xmlns:android="http://schemas.android.com/apk/res/android"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal" >
+	
+	        <Button
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:text=""
+	            android:visibility="invisible" />
+	
+	        <Button
+	            android:id="@+id/b0"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="0" />
+	
+	        <Button
+	            android:id="@+id/bDel"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:minWidth="48dp"
+	            android:textStyle="bold"
+	            android:text="Del" />
+	    </LinearLayout>
+	
+	</LinearLayout>
+</ScrollView>

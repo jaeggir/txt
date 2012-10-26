@@ -6,110 +6,92 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnKeyListener;
+import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.EditText;
 import ch.rogerjaeggi.txt.Constants;
 import ch.rogerjaeggi.txt.R;
 
 public class GoToActivity extends Activity {
 
-	private EditText digit1;
-	private EditText digit2;
-	private EditText digit3;
+	private class MyClickListener implements OnClickListener {
 
-	private final TextWatcher textWatcher = new TextWatcher() {
+		private final int val;
+
+		public MyClickListener(int val) {
+			super();
+			this.val = val;
+		}
 
 		@Override
-		public void afterTextChanged(Editable s) {
-			if (digit1.getText().length() > 0 && digit2.getText().length() > 0 && digit3.getText().length() > 0) {
-				int page = Integer.parseInt(digit1.getText().toString() + digit2.getText().toString() + digit3.getText().toString());
-				Intent data = new Intent();
-				data.putExtra(Constants.EXTRA_PAGE, page);
-				setResult(RESULT_OK, data);
-				finish();
-			} else if (digit2.getText().length() > 0) {
-				if (digit3.getText().length() == 0) {
-					digit3.requestFocus();
-				} else {
-					digit1.requestFocus();
-				}
-			} else if (digit1.getText().length() > 0) {
-				if (digit2.getText().length() == 0) {
-					digit2.requestFocus();
-				} else {
-					digit3.requestFocus();
-				}
-			} else {
-				digit1.requestFocus();
+		public void onClick(View v) {
+			if (newPage.length() < 3) {
+				newPage.setText(newPage.getText().append(Integer.toString(val)));
 			}
 		}
 
-		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-		}
+	}
 
-		@Override
-		public void onTextChanged(CharSequence s, int start, int before, int count) {
-		}
-	};
+	private EditText newPage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+		
 		setContentView(R.layout.activity_goto);
 
-		setTitle("Go To");
-
-		digit1 = (EditText) findViewById(R.id.digit1);
-		digit2 = (EditText) findViewById(R.id.digit2);
-		digit3 = (EditText) findViewById(R.id.digit3);
-
-		digit1.addTextChangedListener(textWatcher);
-		digit1.setSingleLine();
-		digit2.addTextChangedListener(textWatcher);
-		digit2.setOnKeyListener(new OnKeyListener() {
+		newPage = (EditText) findViewById(R.id.newPage);
+		newPage.setSingleLine();
+		newPage.addTextChangedListener(new TextWatcher() {
 
 			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (event.getAction() == KeyEvent.ACTION_DOWN) {
-					if (keyCode == KeyEvent.KEYCODE_DEL && digit2.getText().length() == 0) {
-						digit1.setText("");
-						digit1.requestFocus();
-						return true;
-					}
+			public void afterTextChanged(Editable s) {
+				if (s.length() == 3) {
+					int page = Integer.parseInt(s.toString());
+					Intent data = new Intent().putExtra(Constants.EXTRA_PAGE, page);
+					setResult(RESULT_OK, data);
+					finish();
 				}
-				return false;
 			}
-
-		});
-		digit2.setSingleLine();
-		digit3.addTextChangedListener(textWatcher);
-		digit3.setOnKeyListener(new OnKeyListener() {
 
 			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (event.getAction() == KeyEvent.ACTION_DOWN) {
-					if (keyCode == KeyEvent.KEYCODE_DEL && digit3.getText().length() == 0) {
-						digit2.setText("");
-						digit2.requestFocus();
-						return true;
-					}
-				}
-				return false;
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 			}
 
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			}
 		});
-		digit3.setSingleLine();
-		digit1.requestFocus();
+
+		findViewById(R.id.b0).setOnClickListener(new MyClickListener(0));
+		findViewById(R.id.b1).setOnClickListener(new MyClickListener(1));
+		findViewById(R.id.b2).setOnClickListener(new MyClickListener(2));
+		findViewById(R.id.b3).setOnClickListener(new MyClickListener(3));
+		findViewById(R.id.b4).setOnClickListener(new MyClickListener(4));
+		findViewById(R.id.b5).setOnClickListener(new MyClickListener(5));
+		findViewById(R.id.b6).setOnClickListener(new MyClickListener(6));
+		findViewById(R.id.b7).setOnClickListener(new MyClickListener(7));
+		findViewById(R.id.b8).setOnClickListener(new MyClickListener(8));
+		findViewById(R.id.b9).setOnClickListener(new MyClickListener(9));
+		findViewById(R.id.bDel).setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (newPage.length() > 0) {
+					newPage.setText(newPage.getText().subSequence(0, newPage.getText().length() - 1));
+				}
+			}
+		});
 
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		// to handle clicks outside the dialog on android < 3.0.
 		if (event.getAction() == MotionEvent.ACTION_UP) {
 			Rect r = new Rect(0, 0, 0, 0);
 			getWindow().getDecorView().getHitRect(r);
