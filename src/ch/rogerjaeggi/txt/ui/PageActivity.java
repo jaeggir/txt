@@ -110,6 +110,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 			}
 		});
 		runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex());	
+
+		((TxtApplication) getApplication()).setCurrentPage(100); // to handle orientation changes, runLoadPageTask re-sets the page when done
 	}
 
 	@Override
@@ -174,7 +176,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 				findViewById(R.id.loading).setVisibility(View.GONE);
 				findViewById(R.id.loadingText).setVisibility(View.GONE);
 				ImageView image = (ImageView) findViewById(R.id.page);
-				image.setVisibility(View.VISIBLE);
 				TxtApplication app = (TxtApplication) getApplication();
 				if (result == null) {
 					if (getCurrentPage() != page) {
@@ -193,6 +194,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener {
 					app.setCurrentPageIndex(getSubIndex());
 					image.setImageBitmap(result);
 				}
+				image.setVisibility(View.VISIBLE);
 				image.invalidate();
 				app.setCurrentPage(page);
 				setTitle(Integer.toString(getCurrentPage()));
