@@ -133,12 +133,13 @@
 	        android:layout_height="wrap_content"
 	        android:orientation="horizontal" >
 	
-	        <Button
+	        <ImageButton
+	            android:id="@+id/bRefresh"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
+	            android:layout_height="match_parent"
 	            android:minWidth="48dp"
-	            android:text=""
-	            android:visibility="invisible" />
+	            android:layout_gravity="center_horizontal|center_vertical"
+	            android:src="@drawable/btn_refresh" />
 	
 	        <Button
 	            android:id="@+id/b0"
