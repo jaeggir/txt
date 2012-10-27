@@ -9,14 +9,15 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import ch.rogerjaeggi.utils.tasks.BetterTask;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
-public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
+public abstract class LoadPageTask extends BetterTask<Void, Void, Bitmap> {
 
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 
@@ -37,11 +38,15 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 		enableHttpResponseCache(context);
 	}
 	
-	protected int getSubIndex() { 
+	public int getSubIndex() { 
 		return subIndex;
 	}
+
+	public int getPage() {
+		return page;
+	}
 	
-	public void cancelRefreshMenuEntryAnimation() {
+	public void cancelRefreshIndicators() {
 		// empty, override if needed
 	}
 	
@@ -57,12 +62,16 @@ public abstract class LoadPageTask extends AsyncTask<Void, Void, Bitmap> {
 		}
 	}
 	
-	protected boolean doesPageExists() {
+	public boolean doesPageExists() {
 		return error == null;
 	}
 
 	private Bitmap loadPageWithUrlConnection() throws IOException, FileNotFoundException {
 		try {
+//			try {
+//				Thread.sleep(3000);
+//			} catch (InterruptedException e1) {
+//			}
 			URL url = new URL(baseUrl + page + "-0" + subIndex + ".gif");
 			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 			ByteArrayOutputStream dataStream = new ByteArrayOutputStream();

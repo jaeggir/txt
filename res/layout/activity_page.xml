@@ -13,23 +13,6 @@
         android:src="@drawable/page_does_not_exists"
         android:contentDescription="@string/page"
         android:visibility="gone" />
-    
-    <ProgressBar 
-        android:id="@+id/loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        style="@android:style/Widget.ProgressBar" />
-
-    <TextView
-        android:id="@+id/loadingText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/loading"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="@string/loading" />
 
     <TextView
         android:id="@+id/errorText"
