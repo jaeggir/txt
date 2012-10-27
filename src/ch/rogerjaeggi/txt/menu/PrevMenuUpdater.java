@@ -1,5 +1,7 @@
 package ch.rogerjaeggi.txt.menu;
 
+import ch.rogerjaeggi.txt.R;
+
 import com.actionbarsherlock.view.MenuItem;
 
 
@@ -13,7 +15,9 @@ public class PrevMenuUpdater implements MenuUpdater {
 	
 	@Override
 	public void update(int page) {
-		item.setEnabled(page > 100);
+		boolean enabled = page > 100;
+		item.setEnabled(enabled);
+		item.setIcon(enabled ? R.drawable.ic_find_previous_holo_dark: R.drawable.ic_find_previous_holo_dark_disabled);
 	}
 	
 	@Override
