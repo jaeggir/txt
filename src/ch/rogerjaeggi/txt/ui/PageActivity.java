@@ -351,9 +351,9 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		} else {
 			findViewById(R.id.errorText).setVisibility(View.GONE);
 			app.setCurrentPageIndex(task.getSubIndex());
-			app.setCurrentPage(task.getPage());
 			image.setImageBitmap(result);
 		}
+		app.setCurrentPage(task.getPage());
 		image.setVisibility(View.VISIBLE);
 		image.invalidate();
 		
