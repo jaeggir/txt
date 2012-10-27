@@ -207,10 +207,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			
 			@Override
 			protected void onPostExecute(Bitmap result) {
-				TxtApplication app = (TxtApplication) getApplication();
 				cancelRefreshIndicators();
 				super.onPostExecute(result);
-				app.setCurrentPage(page);
 			}
 
 		};
@@ -353,6 +351,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		} else {
 			findViewById(R.id.errorText).setVisibility(View.GONE);
 			app.setCurrentPageIndex(task.getSubIndex());
+			app.setCurrentPage(task.getPage());
 			image.setImageBitmap(result);
 		}
 		image.setVisibility(View.VISIBLE);
