@@ -13,6 +13,7 @@ import android.view.Window;
 import android.widget.TextView;
 import ch.rogerjaeggi.txt.Constants;
 import ch.rogerjaeggi.txt.R;
+import ch.rogerjaeggi.txt.TxtApplication;
 
 public class GoToActivity extends Activity {
 
@@ -77,6 +78,15 @@ public class GoToActivity extends Activity {
 		findViewById(R.id.b7).setOnClickListener(new MyClickListener(7));
 		findViewById(R.id.b8).setOnClickListener(new MyClickListener(8));
 		findViewById(R.id.b9).setOnClickListener(new MyClickListener(9));
+		findViewById(R.id.bRefresh).setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent data = new Intent().putExtra(Constants.EXTRA_PAGE, ((TxtApplication) getApplication()).getCurrentPage());
+				setResult(RESULT_OK, data);
+				finish();
+			}
+		});
 		findViewById(R.id.bDel).setOnClickListener(new OnClickListener() {
 
 			@Override
