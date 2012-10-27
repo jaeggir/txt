@@ -8,6 +8,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -63,7 +64,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_page);
 		
-		setTitle(Integer.toString(getCurrentPage()));
+		setTitle();
 
 		// Gesture detection
 		final GestureDetector gestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {
@@ -134,6 +135,18 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
         	runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex());	
         }
 		((TxtApplication) getApplication()).setCurrentPage(100); // to handle orientation changes, runLoadPageTask re-sets the page when done
+	}
+	
+	private void setTitle() {
+		int screenLayout = getResources().getConfiguration().screenLayout;
+		boolean largeScreen = (screenLayout &  Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE;
+		boolean xLargeScreen = (screenLayout &  Configuration.SCREENLAYOUT_SIZE_MASK) == 4; // xLarge, not available in api level 8
+		boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		if (largeScreen || xLargeScreen || landscape) {
+			setTitle(Settings.getChannel(this) + " - " + getCurrentPage());
+		} else {
+			setTitle(Integer.toString(getCurrentPage()));
+		}
 	}
 
 	@Override
@@ -344,7 +357,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		}
 		image.setVisibility(View.VISIBLE);
 		image.invalidate();
-		setTitle(Integer.toString(getCurrentPage()));
+		
+		setTitle();
 		
 		updateMenuItems();
 	}
