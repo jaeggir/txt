@@ -122,6 +122,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
         	task.connect(this);
         	if (task.getStatus().equals(AsyncTask.Status.FINISHED)) {
         		try {
+        			((TxtApplication) getApplication()).setCurrentPage(100); // to handle orientation changes, runLoadPageTask re-sets the page when done
 					onDone(task.get());
 				} catch (InterruptedException e3) {
 					Thread.currentThread().interrupt();
@@ -130,11 +131,9 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 				}
         		task.disconnect();
         	}
-        	
         } else {
         	runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex());	
         }
-		((TxtApplication) getApplication()).setCurrentPage(100); // to handle orientation changes, runLoadPageTask re-sets the page when done
 	}
 	
 	private void setTitle() {
@@ -364,7 +363,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 	@Override
 	public void onCancelled() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
