@@ -81,20 +81,20 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 				try {
 					if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 						int nextPage = getCurrentPage() < 899 ? getCurrentPage() + 1 : 100;
-						runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", nextPage, 0);
+						runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", nextPage, 0, false);
 						return true;
 					} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 						if (getCurrentPage() > 100) {
-							runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() - 1, 0);
+							runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() - 1, 0, false);
 							return true;
 						}
 					} else if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
 						if (getCurrentPageIndex() > 0 && getCurrentPage() != 100) {
-							runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex() - 1);
+							runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex() - 1, false);
 							return true;
 						}
 					} else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-						runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex() + 1);
+						runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex() + 1, false);
 						return true;
 					}
 				} catch (Exception e) {
@@ -132,7 +132,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
         		task.disconnect();
         	}
         } else {
-        	runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex());	
+        	runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex(), false);	
         }
 	}
 	
@@ -155,20 +155,21 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == GO_TO_CODE && RESULT_OK == resultCode) {
-			runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", data.getIntExtra(Constants.EXTRA_PAGE, 100), 0);
+			boolean refresh = data.getBooleanExtra(Constants.EXTRA_REFRESH, false);
+			runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", data.getIntExtra(Constants.EXTRA_PAGE, 100), 0, refresh);
 		} else if (requestCode == GO_TO_SETTINGS && RESULT_OK == resultCode) {
-			runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", 100, 0);
+			runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", 100, 0, false);
 		} else {
 			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
 
-	private void runLoadPageTask(String baseUrl, final int page, int subIndex) {
+	private void runLoadPageTask(String baseUrl, final int page, int subIndex, boolean forceRefresh) {
 		if (task != null) {
 			task.cancelRefreshIndicators();
 			task.cancel(true);
 		}
-		task = new LoadPageTask(this, baseUrl, page, subIndex) {
+		task = new LoadPageTask(this, baseUrl, page, subIndex, forceRefresh) {
 
 			private void startRefreshIndicators() {
 				if (refreshMenuUpdater != null) {
@@ -237,15 +238,15 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
 				item.setEnabled(false);
-				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex());
+				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex(), true);
 				return true;
 			case R.id.menu_backwards:
 				item.setEnabled(false);
-				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() - 1, 0);
+				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() - 1, 0, false);
 				return true;
 			case R.id.menu_forewards:
 				item.setEnabled(false);
-				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() + 1, 0);
+				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() + 1, 0, false);
 				return true;
 			case R.id.menu_credits:
 				showDialog(DIALOG_CREDITS);

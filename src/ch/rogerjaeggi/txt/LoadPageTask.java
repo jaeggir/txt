@@ -26,13 +26,15 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, Bitmap> {
 	private final String baseUrl;
 	private final int page;
 	private int subIndex;
+	private final boolean forceRefresh;
 
 	private FileNotFoundException error; 
 	
-	public LoadPageTask(Context context, String baseUrl, int page, int subIndex) {
+	public LoadPageTask(Context context, String baseUrl, int page, int subIndex, boolean forceRefresh) {
 		this.baseUrl = baseUrl;
 		this.page = page;
 		this.subIndex = subIndex;
+		this.forceRefresh = forceRefresh;
 		
 		disableConnectionReuseIfNecessary();
 		enableHttpResponseCache(context);
@@ -68,15 +70,14 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, Bitmap> {
 
 	private Bitmap loadPageWithUrlConnection() throws IOException, FileNotFoundException {
 		try {
-//			try {
-//				Thread.sleep(3000);
-//			} catch (InterruptedException e1) {
-//			}
 			URL url = new URL(baseUrl + page + "-0" + subIndex + ".gif");
-			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			if (forceRefresh) {
+				connection.addRequestProperty("Cache-Control", "no-cache");
+			}
 			ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
 			try {
-				InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+				InputStream in = new BufferedInputStream(connection.getInputStream());
 				final byte[] data = new byte[IO_BUFFER_SIZE];
 				int read = 0;
 				while ((read = in.read(data)) != -1) {
@@ -90,8 +91,8 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, Bitmap> {
 					subIndex++;
 					return loadPageWithUrlConnection();
 				}
-				Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif, responseCode=" + urlConnection.getResponseCode());
-				if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+				Log.e(TAG, "Could not load Bitmap from: " + baseUrl + page + "-0" + subIndex + ".gif, responseCode=" + connection.getResponseCode());
+				if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
 					throw e;
 				} else {
 					return null;
@@ -102,7 +103,7 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, Bitmap> {
 				} catch (IOException e) {
 					// ignore
 				}
-				urlConnection.disconnect();
+				connection.disconnect();
 			}
 		} catch (FileNotFoundException e) {
 			throw e;

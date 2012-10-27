@@ -53,7 +53,7 @@ public class GoToActivity extends Activity {
 			public void afterTextChanged(Editable s) {
 				if (s.length() == 3) {
 					int page = Integer.parseInt(s.toString());
-					Intent data = new Intent().putExtra(Constants.EXTRA_PAGE, page);
+					Intent data = new Intent().putExtra(Constants.EXTRA_PAGE, page).putExtra(Constants.EXTRA_REFRESH, false);
 					setResult(RESULT_OK, data);
 					finish();
 				}
@@ -82,7 +82,9 @@ public class GoToActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				Intent data = new Intent().putExtra(Constants.EXTRA_PAGE, ((TxtApplication) getApplication()).getCurrentPage());
+				Intent data = new Intent();
+				data.putExtra(Constants.EXTRA_PAGE, ((TxtApplication) getApplication()).getCurrentPage());
+				data.putExtra(Constants.EXTRA_REFRESH, true);
 				setResult(RESULT_OK, data);
 				finish();
 			}
