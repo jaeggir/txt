@@ -24,6 +24,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import ch.rogerjaeggi.txt.Constants;
 import ch.rogerjaeggi.txt.LoadPageTask;
@@ -140,12 +141,15 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		int screenLayout = getResources().getConfiguration().screenLayout;
 		boolean largeScreen = (screenLayout &  Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE;
 		boolean xLargeScreen = (screenLayout &  Configuration.SCREENLAYOUT_SIZE_MASK) == 4; // xLarge, not available in api level 8
-		boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-		if (largeScreen || xLargeScreen || landscape) {
+		if (largeScreen || xLargeScreen || isLandscape()) {
 			setTitle(Settings.getChannel(this) + " - " + getCurrentPage());
 		} else {
 			setTitle(Integer.toString(getCurrentPage()));
 		}
+	}
+	
+	private boolean isLandscape() {
+		return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 	}
 
 	@Override
@@ -352,6 +356,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			findViewById(R.id.errorText).setVisibility(View.GONE);
 			app.setCurrentPageIndex(task.getSubIndex());
 			image.setImageBitmap(result);
+			image.setScaleType(isLandscape() ? ScaleType.FIT_CENTER : ScaleType.FIT_XY);
 		}
 		app.setCurrentPage(task.getPage());
 		image.setVisibility(View.VISIBLE);

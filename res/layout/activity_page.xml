@@ -7,7 +7,6 @@
         android:id="@+id/page"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitXY"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:src="@drawable/page_does_not_exists"
