@@ -5,20 +5,24 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import ch.rogerjaeggi.txt.EChannel;
 import ch.rogerjaeggi.txt.R;
 import ch.rogerjaeggi.txt.Settings;
 
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.actionbarsherlock.view.MenuItem;
 
-public class SettingsActivity extends PreferenceActivity {
+
+public class SettingsActivity extends SherlockPreferenceActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setTitle(getString(R.string.menu_settings));
 
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		
         setPreferenceScreen(createPreferenceHierarchy());
 	} 
 	
@@ -48,6 +52,17 @@ public class SettingsActivity extends PreferenceActivity {
         root.addPreference(listPref);
         
         return root;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    case android.R.id.home:
+	         finish();
+	         return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
 	}
 	
 }
