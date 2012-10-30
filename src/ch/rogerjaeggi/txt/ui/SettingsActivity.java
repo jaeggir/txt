@@ -2,6 +2,7 @@ package ch.rogerjaeggi.txt.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -29,6 +30,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	private PreferenceScreen createPreferenceHierarchy() {
         PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
 
+        // channel preference
         final ListPreference listPref = new ListPreference(this);
         listPref.setEntries(EChannel.getAllNames());
         listPref.setEntryValues(EChannel.getAllUrls());
@@ -50,6 +52,24 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 			}
 		});
         root.addPreference(listPref);
+        
+        // clickable link preference
+        final CheckBoxPreference checkPref = new CheckBoxPreference(this);
+        checkPref.setTitle(R.string.prefsClickableNumbersTitle);
+        checkPref.setSummary(R.string.prefsClickableNumbersSummary);
+        checkPref.setDefaultValue(Settings.isLinksClickable(this));
+        checkPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				boolean linksClickable = (Boolean) newValue;
+				if (linksClickable != Settings.isLinksClickable(SettingsActivity.this));
+				Settings.setLinksClickable(SettingsActivity.this, linksClickable);
+				setResult(Activity.RESULT_OK);
+				return true;
+			}
+		});
+        root.addPreference(checkPref);
         
         return root;
 	}

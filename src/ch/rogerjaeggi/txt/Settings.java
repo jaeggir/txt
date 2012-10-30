@@ -10,7 +10,8 @@ import android.content.SharedPreferences.Editor;
 public class Settings {
 
 	private static final String PREFS = "txtPrefs";
-	static final String KEY_CHANNEL = "key.channel";
+	private static final String KEY_CHANNEL = "key.channel";
+	private static final String KEY_CLICKABLE_LINKS = "key.clickableLinks";
 			
 	private static Method sApplyMethod = findApplyMethod();
 	
@@ -26,6 +27,17 @@ public class Settings {
 		Editor editor = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
 		editor.putInt(KEY_CHANNEL, channel.getId());
         apply(editor);	
+	}
+
+	public static boolean isLinksClickable(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+		return prefs.getBoolean(KEY_CLICKABLE_LINKS, true);
+	}
+	
+	public static void setLinksClickable(Context context, boolean linksClickable) {
+		Editor editor = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
+		editor.putBoolean(KEY_CLICKABLE_LINKS, linksClickable);
+        apply(editor);
 	}
 	
 	private static Method findApplyMethod() {

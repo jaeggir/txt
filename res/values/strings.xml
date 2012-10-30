@@ -17,5 +17,7 @@
 	<string name="prefsChannelDialogTitle">Choose your channel</string>
 	<string name="prefsChannelTitle">Channel</string>
 	<string name="prefsChannelSummary">Current channel: %s</string>
+	<string name="prefsClickableNumbersTitle">Enable Clickable Page Numbers</string>
+	<string name="prefsClickableNumbersSummary">Enabling clickable page numbers may result in slower page loading.</string>
 
 </resources>
