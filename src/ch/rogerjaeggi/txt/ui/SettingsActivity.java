@@ -65,7 +65,6 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 				boolean linksClickable = (Boolean) newValue;
 				if (linksClickable != Settings.isLinksClickable(SettingsActivity.this));
 				Settings.setLinksClickable(SettingsActivity.this, linksClickable);
-				setResult(Activity.RESULT_OK);
 				return true;
 			}
 		});
