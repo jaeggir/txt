@@ -106,7 +106,7 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, TxtResult> {
 	    			areas.add(area);
 	    		}
 	    	}
-	    	if (s.contains("map") && s.contains("blacktxt_links_" + subPage)) {
+	    	if (s.contains("map") && s.contains("blacktxt_links_" + (subPage == 0 ? 0 : subPage - 1))) {
 	    		start = true;
 	    	}
 	    	if (start && s.contains("</map>")) {
