@@ -23,6 +23,7 @@
         </activity>
         <activity
             android:name=".ui.GoToActivity"
+            android:noHistory="true"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/GoToTheme" />
         <activity

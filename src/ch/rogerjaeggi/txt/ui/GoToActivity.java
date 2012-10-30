@@ -116,7 +116,7 @@ public class GoToActivity extends Activity {
 			Rect r = new Rect(0, 0, 0, 0);
 			getWindow().getDecorView().getHitRect(r);
 			boolean intersects = r.contains((int) event.getX(), (int) event.getY());
-			if (!intersects) {
+			if (!intersects && !isFinishing()) {
 				setResult(RESULT_CANCELED);
 				finish();
 				return true;
