@@ -9,39 +9,43 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.view.Display;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import ch.rogerjaeggi.txt.Constants;
-import ch.rogerjaeggi.txt.LoadPageTask;
 import ch.rogerjaeggi.txt.R;
-import ch.rogerjaeggi.txt.R.anim;
 import ch.rogerjaeggi.txt.Settings;
 import ch.rogerjaeggi.txt.TxtApplication;
+import ch.rogerjaeggi.txt.R.anim;
+import ch.rogerjaeggi.txt.loader.IPageActivityCallable;
+import ch.rogerjaeggi.txt.loader.LoadPageTask;
+import ch.rogerjaeggi.txt.loader.LoadPageTaskFactory;
+import ch.rogerjaeggi.txt.loader.TouchableArea;
+import ch.rogerjaeggi.txt.loader.TxtResult;
 import ch.rogerjaeggi.txt.menu.NextMenuUpdater;
 import ch.rogerjaeggi.txt.menu.PrevMenuUpdater;
 import ch.rogerjaeggi.txt.menu.RefreshMenuUpdater;
-import ch.rogerjaeggi.utils.tasks.ITaskActivityCallable;
-
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class PageActivity extends SherlockActivity implements OnClickListener, ITaskActivityCallable<Bitmap> {
+public class PageActivity extends SherlockActivity implements OnClickListener, IPageActivityCallable {
 
 	private static final int DIALOG_CREDITS = 1;
 	private static final int DIALOG_LOADING = 2;
@@ -51,8 +55,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	
 	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 	private final int SWIPE_MIN_DISTANCE = 60;//ViewConfiguration.get(this).getScaledTouchSlop(); // TODO
-
-	private static final String BASE_URL = "http://www.teletext.ch/dynpics/";
 	
 	private PrevMenuUpdater prevMenuUpdater;
 	private NextMenuUpdater nextMenuUpdater;
@@ -67,56 +69,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		
 		setTitle();
 
-		// Gesture detection
-		final GestureDetector gestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {
-
-			@Override
-			public boolean onSingleTapUp(MotionEvent e) {
-				Intent intent = new Intent(PageActivity.this, GoToActivity.class);
-				startActivityForResult(intent, GO_TO_CODE);
-				return true;
-			}
-
-			@Override
-			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-				try {
-					if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-						int nextPage = getCurrentPage() < 899 ? getCurrentPage() + 1 : 100;
-						runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", nextPage, 0, false);
-						return true;
-					} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-						if (getCurrentPage() > 100) {
-							runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() - 1, 0, false);
-							return true;
-						}
-					} else if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-						if (getCurrentPageIndex() > 0 && getCurrentPage() != 100) {
-							runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex() - 1, false);
-							return true;
-						}
-					} else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-						runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex() + 1, false);
-						return true;
-					}
-				} catch (Exception e) {
-					// nothing
-				}
-				return false;
-			}
-
-		});
-		gestureDetector.setIsLongpressEnabled(false);
-		
-		View page = findViewById(R.id.page);
-		page.setOnClickListener(this);
-		page.setOnTouchListener(new View.OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				return gestureDetector.onTouchEvent(event);
-			}
-		});
-		
 		// try to obtain a reference to a task piped through from the previous activity instance
         task = (LoadPageTask) getLastNonConfigurationInstance();
         if (task != null) {
@@ -133,7 +85,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
         		task.disconnect();
         	}
         } else {
-        	runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex(), false);	
+        	runLoadPageTask(getCurrentPage(), getCurrentPageIndex(), false);	
         }
 	}
 	
@@ -141,81 +93,36 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		int screenLayout = getResources().getConfiguration().screenLayout;
 		boolean largeScreen = (screenLayout &  Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE;
 		boolean xLargeScreen = (screenLayout &  Configuration.SCREENLAYOUT_SIZE_MASK) == 4; // xLarge, not available in api level 8
-		if (largeScreen || xLargeScreen || isLandscape()) {
+		if (largeScreen || xLargeScreen || isLandscapeMode()) {
 			setTitle(Settings.getChannel(this) + " - " + getCurrentPage());
 		} else {
 			setTitle(Integer.toString(getCurrentPage()));
 		}
 	}
 	
-	private boolean isLandscape() {
+	private boolean isLandscapeMode() {
 		return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-	}
-
-	@Override
-	public void onClick(View v) {
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == GO_TO_CODE && RESULT_OK == resultCode) {
 			boolean refresh = data.getBooleanExtra(Constants.EXTRA_REFRESH, false);
-			runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", data.getIntExtra(Constants.EXTRA_PAGE, 100), 0, refresh);
+			runLoadPageTask(data.getIntExtra(Constants.EXTRA_PAGE, 100), 0, refresh);
 		} else if (requestCode == GO_TO_SETTINGS && RESULT_OK == resultCode) {
-			runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", 100, 0, false);
+			runLoadPageTask(100, 0, false);
 		} else {
 			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
 
-	private void runLoadPageTask(String baseUrl, final int page, int subIndex, boolean forceRefresh) {
+	private void runLoadPageTask(final int page, int subIndex, boolean forceRefresh) {
+//		String baseUrl = BASE_URL + "dynpics" + Settings.getChannel(PageActivity.this).getUrl() + "/";
 		if (task != null) {
-			task.cancelRefreshIndicators();
+			cancelRefreshIndicators();
 			task.cancel(true);
 		}
-		task = new LoadPageTask(this, baseUrl, page, subIndex, forceRefresh) {
-
-			private void startRefreshIndicators() {
-				if (refreshMenuUpdater != null) {
-					LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					ImageView iv = (ImageView) inflater.inflate(R.layout.refresh_action_view, null);
-					
-					Animation rotation = AnimationUtils.loadAnimation(PageActivity.this, anim.refresh_animation);
-					rotation.setRepeatCount(Animation.INFINITE);
-					iv.startAnimation(rotation);
-			
-					refreshMenuUpdater.getMenuItem().setActionView(iv);
-				}
-			}
-
-			@Override
-			public void cancelRefreshIndicators() {
-				if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() != null) {
-					refreshMenuUpdater.getMenuItem().getActionView().clearAnimation();
-					refreshMenuUpdater.getMenuItem().setActionView(null);
-				}
-			}
-			
-			@Override
-			protected void onPreExecute() {
-				startRefreshIndicators();
-				super.onPreExecute();
-			}
-			
-			@Override
-			protected void onCancelled() {
-				cancelRefreshIndicators();
-				updateMenuItems();
-				super.onCancelled();
-			}
-			
-			@Override
-			protected void onPostExecute(Bitmap result) {
-				cancelRefreshIndicators();
-				super.onPostExecute(result);
-			}
-
-		};
+		task = LoadPageTaskFactory.createTask(this, Settings.getChannel(PageActivity.this), page, subIndex, forceRefresh);
 		task.connect(this);
 		task.execute();
 	}
@@ -242,15 +149,15 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
 				item.setEnabled(false);
-				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage(), getCurrentPageIndex(), true);
+				runLoadPageTask(getCurrentPage(), getCurrentPageIndex(), true);
 				return true;
 			case R.id.menu_backwards:
 				item.setEnabled(false);
-				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() - 1, 0, false);
+				runLoadPageTask(getCurrentPage() - 1, 0, false);
 				return true;
 			case R.id.menu_forewards:
 				item.setEnabled(false);
-				runLoadPageTask(BASE_URL + Settings.getChannel(PageActivity.this).getUrl() + "/", getCurrentPage() + 1, 0, false);
+				runLoadPageTask(getCurrentPage() + 1, 0, false);
 				return true;
 			case R.id.menu_credits:
 				showDialog(DIALOG_CREDITS);
@@ -305,14 +212,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 		return super.onPrepareOptionsMenu(menu);
 	}
-
-	public void updateMenuItems() {
-		if (prevMenuUpdater != null) {
-			prevMenuUpdater.update(getCurrentPage());
-			nextMenuUpdater.update(getCurrentPage());
-			refreshMenuUpdater.update(getCurrentPage());
-		}
-	}
 	
 	private int getCurrentPage() {
 		return ((TxtApplication) getApplication()).getCurrentPage();
@@ -337,10 +236,41 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	}
 
 	@Override
-	public void onDone(Bitmap result) {
-		ImageView image = (ImageView) findViewById(R.id.page);
+	public void updateMenuItems() {
+		if (prevMenuUpdater != null) {
+			prevMenuUpdater.update(getCurrentPage());
+			nextMenuUpdater.update(getCurrentPage());
+			refreshMenuUpdater.update(getCurrentPage());
+		}
+	}
+	
+	@Override
+	public void cancelRefreshIndicators() {
+		if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() != null) {
+			refreshMenuUpdater.getMenuItem().getActionView().clearAnimation();
+			refreshMenuUpdater.getMenuItem().setActionView(null);
+		}
+	}
+	
+	@Override	
+	public void startRefreshIndicators() {
+		if (refreshMenuUpdater != null) {
+			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			ImageView iv = (ImageView) inflater.inflate(R.layout.refresh_action_view, null);
+			
+			Animation rotation = AnimationUtils.loadAnimation(this, anim.refresh_animation);
+			rotation.setRepeatCount(Animation.INFINITE);
+			iv.startAnimation(rotation);
+	
+			refreshMenuUpdater.getMenuItem().setActionView(iv);
+		}
+	}
+
+	@Override
+	public void onDone(final TxtResult result) {
+		final ImageView image = (ImageView) findViewById(R.id.page);
 		TxtApplication app = (TxtApplication) getApplication();
-		if (result == null) {
+		if (result.getBitmap() == null) {
 			if (getCurrentPage() != task.getPage()) {
 				image.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.page_does_not_exists));
 				findViewById(R.id.errorText).setVisibility(View.VISIBLE);
@@ -354,9 +284,81 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			}
 		} else {
 			findViewById(R.id.errorText).setVisibility(View.GONE);
-			app.setCurrentPageIndex(task.getSubIndex());
-			image.setImageBitmap(result);
-			image.setScaleType(isLandscape() ? ScaleType.FIT_CENTER : ScaleType.FIT_XY);
+			app.setCurrentPageIndex(task.getSubPage());
+			image.setImageBitmap(result.getBitmap());
+			image.setScaleType(isLandscapeMode() ? ScaleType.FIT_CENTER : ScaleType.FIT_XY);
+			image.setOnClickListener(this);
+			image.setOnTouchListener(new OnTouchListener() {
+				
+				// Gesture detection
+				final GestureDetector gestureDetector = new GestureDetector(PageActivity.this, new SimpleOnGestureListener() {
+
+					@Override
+					public boolean onSingleTapUp(MotionEvent event) {
+						int x = 0;
+						int y = 0;
+						if (isLandscapeMode()) {
+							float scale = (float) image.getHeight() / result.getBitmap().getHeight();
+							Display display = getWindowManager().getDefaultDisplay(); 
+							int displayWidth = display.getWidth();
+							x = (int) ((event.getX() - (displayWidth - scale * result.getBitmap().getWidth()) / 2) / scale);
+					    	y = (int) (event.getY() / scale);
+						} else {
+							Rect r = image.getDrawable().getBounds();
+							float scaleX = (float) (r.right - r.left) / result.getBitmap().getWidth();
+					    	float scaleY = (float) (r.bottom - r.top) / result.getBitmap().getHeight();
+					    	x = (int) (event.getX() / scaleX);
+					    	y = (int) (event.getY() / scaleY);
+						}
+				    	TouchableArea area = result.intersects(new Rect(x - 5, y - 5, x + 5, y + 5));
+				    	if (area != null) {
+				    		runLoadPageTask(area.getTarget(), 0, false);
+					    } else {
+					    	handleSimpleClick();
+					    }
+						return true;
+					}
+					
+					private void handleSimpleClick() {
+						Intent intent = new Intent(PageActivity.this, GoToActivity.class);
+						startActivityForResult(intent, GO_TO_CODE);
+					}
+
+					@Override
+					public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+						try {
+							if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+								int nextPage = getCurrentPage() < 899 ? getCurrentPage() + 1 : 100;
+								runLoadPageTask(nextPage, 0, false);
+								return true;
+							} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+								if (getCurrentPage() > 100) {
+									runLoadPageTask(getCurrentPage() - 1, 0, false);
+									return true;
+								}
+							} else if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+								if (getCurrentPageIndex() > 0 && getCurrentPage() != 100) {
+									runLoadPageTask(getCurrentPage(), getCurrentPageIndex() - 1, false);
+									return true;
+								}
+							} else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+								runLoadPageTask(getCurrentPage(), getCurrentPageIndex() + 1, false);
+								return true;
+							}
+						} catch (Exception e) {
+							// nothing
+						}
+						return false;
+					}
+
+				});
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					return gestureDetector.onTouchEvent(event);
+				}
+				
+			});
 		}
 		app.setCurrentPage(task.getPage());
 		image.setVisibility(View.VISIBLE);
@@ -374,5 +376,11 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	@Override
 	public int getDialogId() {
 		return DIALOG_LOADING;
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
 	}
 }
