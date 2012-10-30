@@ -380,7 +380,5 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
-		
 	}
 }
