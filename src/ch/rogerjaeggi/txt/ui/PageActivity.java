@@ -17,12 +17,13 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
 import android.view.GestureDetector;
-import android.view.LayoutInflater;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewConfiguration;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -30,9 +31,9 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import ch.rogerjaeggi.txt.Constants;
 import ch.rogerjaeggi.txt.R;
+import ch.rogerjaeggi.txt.R.anim;
 import ch.rogerjaeggi.txt.Settings;
 import ch.rogerjaeggi.txt.TxtApplication;
-import ch.rogerjaeggi.txt.R.anim;
 import ch.rogerjaeggi.txt.loader.IPageActivityCallable;
 import ch.rogerjaeggi.txt.loader.LoadPageTask;
 import ch.rogerjaeggi.txt.loader.LoadPageTaskFactory;
@@ -54,7 +55,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	private static final int GO_TO_SETTINGS = 78;
 	
 	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-	private final int SWIPE_MIN_DISTANCE = 60;//ViewConfiguration.get(this).getScaledTouchSlop(); // TODO
+	
+	private int swipeMinDistance;
 	
 	private PrevMenuUpdater prevMenuUpdater;
 	private NextMenuUpdater nextMenuUpdater;
@@ -327,21 +329,21 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 					@Override
 					public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 						try {
-							if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+							if (e1.getX() - e2.getX() > getSwipeMinDistance() && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 								int nextPage = getCurrentPage() < 899 ? getCurrentPage() + 1 : 100;
 								runLoadPageTask(nextPage, 0, false);
 								return true;
-							} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+							} else if (e2.getX() - e1.getX() > getSwipeMinDistance() && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 								if (getCurrentPage() > 100) {
 									runLoadPageTask(getCurrentPage() - 1, 0, false);
 									return true;
 								}
-							} else if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+							} else if (e1.getY() - e2.getY() > getSwipeMinDistance() && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
 								if (getCurrentPageIndex() > 0 && getCurrentPage() != 100) {
 									runLoadPageTask(getCurrentPage(), getCurrentPageIndex() - 1, false);
 									return true;
 								}
-							} else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+							} else if (e2.getY() - e1.getY() > getSwipeMinDistance() && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
 								runLoadPageTask(getCurrentPage(), getCurrentPageIndex() + 1, false);
 								return true;
 							}
@@ -380,5 +382,12 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 	@Override
 	public void onClick(View v) {
+	}
+	
+	private int getSwipeMinDistance() {
+		if (swipeMinDistance == 0) {
+			swipeMinDistance = ViewConfiguration.get(this).getScaledTouchSlop() * 2;
+		}
+		return swipeMinDistance;
 	}
 }
