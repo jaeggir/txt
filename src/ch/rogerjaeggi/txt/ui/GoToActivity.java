@@ -68,7 +68,15 @@ public class GoToActivity extends Activity {
 			}
 		});
 
-		findViewById(R.id.b0).setOnClickListener(new MyClickListener(0));
+		findViewById(R.id.b0).setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (newPage.length() > 0) {
+					newPage.setText(newPage.getText() + "0");
+				}
+			}
+		});
 		findViewById(R.id.b1).setOnClickListener(new MyClickListener(1));
 		findViewById(R.id.b2).setOnClickListener(new MyClickListener(2));
 		findViewById(R.id.b3).setOnClickListener(new MyClickListener(3));
