@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import ch.rogerjaeggi.txt.Constants;
+import ch.rogerjaeggi.txt.Page;
 import ch.rogerjaeggi.txt.R;
 import ch.rogerjaeggi.txt.R.anim;
 import ch.rogerjaeggi.txt.Settings;
@@ -42,6 +43,7 @@ import ch.rogerjaeggi.txt.loader.TxtResult;
 import ch.rogerjaeggi.txt.menu.NextMenuUpdater;
 import ch.rogerjaeggi.txt.menu.PrevMenuUpdater;
 import ch.rogerjaeggi.txt.menu.RefreshMenuUpdater;
+
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -369,6 +371,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		setTitle();
 		
 		updateMenuItems();
+		((TxtApplication) getApplication()).pushHistory(Settings.getChannel(this), task.getPage(), task.getSubPage());
 	}
 
 	@Override
@@ -389,5 +392,16 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			swipeMinDistance = ViewConfiguration.get(this).getScaledTouchSlop() * 2;
 		}
 		return swipeMinDistance;
+	}
+	
+	@Override
+	public void onBackPressed() {
+		((TxtApplication) getApplication()).popHistory(); // current page
+		Page prevPage = ((TxtApplication) getApplication()).popHistory(); // previous page
+		if (prevPage == null) {
+			super.onBackPressed();
+		} else {
+			runLoadPageTask(prevPage.getPage(), prevPage.getSubPage(), false);
+		}
 	}
 }

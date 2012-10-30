@@ -1,7 +1,9 @@
 package ch.rogerjaeggi.txt;
 
-import ch.rogerjaeggi.utils.Logging;
+import java.util.Stack;
+
 import android.app.Application;
+import ch.rogerjaeggi.utils.Logging;
 
 
 public class TxtApplication extends Application {
@@ -10,10 +12,13 @@ public class TxtApplication extends Application {
 	
 	private int currentPageIndex = 0;
 	
+	private Stack<Page> history;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		Logging.init(getApplicationContext());
+		history = new Stack<Page>();
 	}
 	
 	public void setCurrentPage(int page) {
@@ -30,6 +35,26 @@ public class TxtApplication extends Application {
 
 	public void setCurrentPageIndex(int index) {
 		this.currentPageIndex = index;
+	}
+	
+	public void pushHistory(EChannel channel, int page, int subPage) {
+		Page newPage = new Page(channel, page, subPage);
+		if (history.isEmpty()) {
+			history.push(newPage);
+		} else {
+			Page top = history.peek();
+			if (!top.equals(newPage)) {
+				history.push(newPage);
+			}
+		}
+	}
+	
+	public Page popHistory() {
+		if (history.isEmpty()) {
+			return null;
+		} else {
+			return history.pop();
+		}
 	}
 
 }
