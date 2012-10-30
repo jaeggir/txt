@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.Rect;
-
 import ch.rogerjaeggi.txt.EChannel;
+import ch.rogerjaeggi.txt.loader.cache.ResultCache;
 import ch.rogerjaeggi.utils.tasks.BetterTask;
 
 public abstract class LoadPageTask extends BetterTask<Void, Void, TxtResult> {
@@ -48,7 +48,17 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, TxtResult> {
 	@Override
 	protected TxtResult doInBackground(Void... params) {
 		try {
-			return doWork();
+			TxtResult cachedResult = null;
+			if (!forceRefresh) {
+				cachedResult = ResultCache.getResult(channel, page, subPage);
+			}
+			if (cachedResult != null) {
+				return cachedResult;
+			} else {
+				TxtResult result = doWork();
+				ResultCache.storeResult(channel, page, subPage, result);
+				return result;
+			}
 		} catch (FileNotFoundException e) {
 			error = e;
 			return new TxtResult(null);
