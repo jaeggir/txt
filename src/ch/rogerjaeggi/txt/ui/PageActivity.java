@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import ch.rogerjaeggi.txt.Constants;
+import ch.rogerjaeggi.txt.EPageLinkSetting;
 import ch.rogerjaeggi.txt.Page;
 import ch.rogerjaeggi.txt.R;
 import ch.rogerjaeggi.txt.R.anim;
@@ -126,7 +127,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			cancelRefreshIndicators();
 			task.cancel(true);
 		}
-		task = LoadPageTaskFactory.createTask(this, Settings.getChannel(PageActivity.this), page, subIndex, forceRefresh);
+		boolean loadPageLinks = Settings.getClickableLinkSetting(this).shouldLoadPageLinks(this);
+		task = LoadPageTaskFactory.createTask(this, Settings.getChannel(PageActivity.this), page, subIndex, loadPageLinks, forceRefresh);
 		task.connect(this);
 		task.execute();
 	}
@@ -299,27 +301,31 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 					@Override
 					public boolean onSingleTapUp(MotionEvent event) {
-						int x = 0;
-						int y = 0;
-						if (isLandscapeMode()) {
-							float scale = (float) image.getHeight() / result.getBitmap().getHeight();
-							Display display = getWindowManager().getDefaultDisplay(); 
-							int displayWidth = display.getWidth();
-							x = (int) ((event.getX() - (displayWidth - scale * result.getBitmap().getWidth()) / 2) / scale);
-					    	y = (int) (event.getY() / scale);
+						if (Settings.getClickableLinkSetting(PageActivity.this) != EPageLinkSetting.DISABLED) {
+							int x = 0;
+							int y = 0;
+							if (isLandscapeMode()) {
+								float scale = (float) image.getHeight() / result.getBitmap().getHeight();
+								Display display = getWindowManager().getDefaultDisplay(); 
+								int displayWidth = display.getWidth();
+								x = (int) ((event.getX() - (displayWidth - scale * result.getBitmap().getWidth()) / 2) / scale);
+						    	y = (int) (event.getY() / scale);
+							} else {
+								Rect r = image.getDrawable().getBounds();
+								float scaleX = (float) (r.right - r.left) / result.getBitmap().getWidth();
+						    	float scaleY = (float) (r.bottom - r.top) / result.getBitmap().getHeight();
+						    	x = (int) (event.getX() / scaleX);
+						    	y = (int) (event.getY() / scaleY);
+							}
+					    	TouchableArea area = result.intersects(new Rect(x - 5, y - 5, x + 5, y + 5));
+					    	if (area != null) {
+					    		runLoadPageTask(area.getTarget(), 0, false);
+						    } else {
+						    	handleSimpleClick();
+						    }
 						} else {
-							Rect r = image.getDrawable().getBounds();
-							float scaleX = (float) (r.right - r.left) / result.getBitmap().getWidth();
-					    	float scaleY = (float) (r.bottom - r.top) / result.getBitmap().getHeight();
-					    	x = (int) (event.getX() / scaleX);
-					    	y = (int) (event.getY() / scaleY);
+							handleSimpleClick();
 						}
-				    	TouchableArea area = result.intersects(new Rect(x - 5, y - 5, x + 5, y + 5));
-				    	if (area != null) {
-				    		runLoadPageTask(area.getTarget(), 0, false);
-					    } else {
-					    	handleSimpleClick();
-					    }
 						return true;
 					}
 					

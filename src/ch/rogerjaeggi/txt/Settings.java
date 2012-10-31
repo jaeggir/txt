@@ -29,14 +29,14 @@ public class Settings {
         apply(editor);	
 	}
 
-	public static boolean isLinksClickable(Context context) {
+	public static EPageLinkSetting getClickableLinkSetting(Context context) {
 		SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-		return prefs.getBoolean(KEY_CLICKABLE_LINKS, true);
+		return EPageLinkSetting.getById(prefs.getInt(KEY_CLICKABLE_LINKS, EPageLinkSetting.WIFI.getId()));
 	}
 	
-	public static void setLinksClickable(Context context, boolean linksClickable) {
+	public static void setClickableLinkSetting(Context context, EPageLinkSetting setting) {
 		Editor editor = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
-		editor.putBoolean(KEY_CLICKABLE_LINKS, linksClickable);
+		editor.putInt(KEY_CLICKABLE_LINKS, setting.getId());
         apply(editor);
 	}
 	

@@ -2,12 +2,12 @@ package ch.rogerjaeggi.txt.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
 import ch.rogerjaeggi.txt.EChannel;
+import ch.rogerjaeggi.txt.EPageLinkSetting;
 import ch.rogerjaeggi.txt.R;
 import ch.rogerjaeggi.txt.Settings;
 
@@ -31,14 +31,14 @@ public class SettingsActivity extends SherlockPreferenceActivity {
         PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
 
         // channel preference
-        final ListPreference listPref = new ListPreference(this);
-        listPref.setEntries(EChannel.getAllNames());
-        listPref.setEntryValues(EChannel.getAllUrls());
-        listPref.setDefaultValue(Settings.getChannel(this).getUrl());
-        listPref.setDialogTitle(R.string.prefsChannelDialogTitle);
-        listPref.setTitle(R.string.prefsChannelTitle);
-        listPref.setSummary(String.format(getString(R.string.prefsChannelSummary), Settings.getChannel(this).getName()));
-        listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+        final ListPreference channelPref = new ListPreference(this);
+        channelPref.setEntries(EChannel.getAllNames());
+        channelPref.setEntryValues(EChannel.getAllUrls());
+        channelPref.setDefaultValue(Settings.getChannel(this).getUrl());
+        channelPref.setDialogTitle(R.string.prefsChannelDialogTitle);
+        channelPref.setTitle(R.string.prefsChannelTitle);
+        channelPref.setSummary(String.format(getString(R.string.prefsChannelSummary), Settings.getChannel(this).getName()));
+        channelPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -51,24 +51,30 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 				return true;
 			}
 		});
-        root.addPreference(listPref);
+        root.addPreference(channelPref);
         
         // clickable link preference
-        final CheckBoxPreference checkPref = new CheckBoxPreference(this);
-        checkPref.setTitle(R.string.prefsClickableNumbersTitle);
-        checkPref.setSummary(R.string.prefsClickableNumbersSummary);
-        checkPref.setDefaultValue(Settings.isLinksClickable(this));
-        checkPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+        final ListPreference loadLinksPref = new ListPreference(this);
+        loadLinksPref.setEntries(EPageLinkSetting.getAllNames(this));
+        loadLinksPref.setEntryValues(EPageLinkSetting.getAllIds());
+        loadLinksPref.setDefaultValue(Integer.toString(Settings.getClickableLinkSetting(this).getId()));
+        loadLinksPref.setDialogTitle(R.string.prefsClickableNumbersTitle);
+        loadLinksPref.setTitle(R.string.prefsClickableNumbersTitle);
+        loadLinksPref.setSummary(Settings.getClickableLinkSetting(this).getName(this));
+        loadLinksPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				boolean linksClickable = (Boolean) newValue;
-				if (linksClickable != Settings.isLinksClickable(SettingsActivity.this));
-				Settings.setLinksClickable(SettingsActivity.this, linksClickable);
+				EPageLinkSetting newState =  EPageLinkSetting.getById(Integer.parseInt((String) newValue));
+				if (!newState.equals(Settings.getClickableLinkSetting(SettingsActivity.this))) {
+					Settings.setClickableLinkSetting(SettingsActivity.this, newState);
+					preference.setSummary(Settings.getClickableLinkSetting(SettingsActivity.this).getName(SettingsActivity.this));
+					setResult(Activity.RESULT_OK);
+				}
 				return true;
 			}
 		});
-        root.addPreference(checkPref);
+        root.addPreference(loadLinksPref);
         
         return root;
 	}

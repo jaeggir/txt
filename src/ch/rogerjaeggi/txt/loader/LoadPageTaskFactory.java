@@ -7,11 +7,11 @@ import ch.rogerjaeggi.txt.EChannel;
 
 public class LoadPageTaskFactory {
 
-	public static LoadPageTask createTask(Context context, EChannel channel, int page, int subPage, boolean forceRefresh) {
+	public static LoadPageTask createTask(Context context, EChannel channel, int page, int subPage, boolean loadPageLinks, boolean forceRefresh) {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			return new HttpClientTask(channel, page, subPage, forceRefresh);
+			return new HttpClientTask(channel, page, subPage, loadPageLinks, forceRefresh);
 		} else {
-			return new UrlConnectionTask(context, channel, page, subPage, forceRefresh);
+			return new UrlConnectionTask(context, channel, page, subPage, loadPageLinks, forceRefresh);
 		}
 	}
 	

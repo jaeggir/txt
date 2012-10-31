@@ -22,14 +22,16 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, TxtResult> {
 	protected final EChannel channel;
 	protected final int page;
 	protected int subPage;
+	protected final boolean loadPageLinks;
 	protected final boolean forceRefresh;
 
 	private FileNotFoundException error;
 	
-	public LoadPageTask(EChannel channel, int page, int subPage, boolean forceRefresh) {
+	public LoadPageTask(EChannel channel, int page, int subPage, boolean loadPageLinks, boolean forceRefresh) {
 		this.channel = channel;
 		this.page = page;
 		this.subPage = subPage;
+		this.loadPageLinks = loadPageLinks;
 		this.forceRefresh = forceRefresh;
 	}
 	

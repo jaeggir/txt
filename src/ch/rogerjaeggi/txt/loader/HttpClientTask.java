@@ -18,14 +18,13 @@ import android.graphics.BitmapFactory;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 import ch.rogerjaeggi.txt.EChannel;
-import ch.rogerjaeggi.txt.Settings;
 import ch.rogerjaeggi.utils.Logging;
 
 
 public class HttpClientTask extends LoadPageTask {
 
-	public HttpClientTask(EChannel channel, int page, int subPage, boolean forceRefresh) {
-		super(channel, page, subPage, forceRefresh);
+	public HttpClientTask(EChannel channel, int page, int subPage, boolean loadPageLinks, boolean forceRefresh) {
+		super(channel, page, subPage, loadPageLinks, forceRefresh);
 	}
 
 	@Override
@@ -52,7 +51,7 @@ public class HttpClientTask extends LoadPageTask {
 					final byte[] imgData = dataStream.toByteArray();
 					BitmapFactory.Options options = new BitmapFactory.Options();
 					TxtResult result = new TxtResult(BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options));
-					if (Settings.isLinksClickable(getCallable().getActivity())) {
+					if (loadPageLinks) {
 						result.addTouchableAreas(findTouchableAreas());
 					}
 					return result;
