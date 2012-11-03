@@ -14,12 +14,24 @@ public class TxtKey {
 		this.page = page;
 		this.subPage = subPage;
 	}
+
+	public EChannel getChannel() {
+		return EChannel.getById(channelId);
+	}
+
+	public int getPage() {
+		return page;
+	}
 	
+	public int getSubPage() {
+		return subPage;
+	}
+
 	@Override
 	public int hashCode() {
 		int hc = 17; 
 		int hashMultiplier = 59; 
-		return hc + channelId * hashMultiplier + page * hashMultiplier + subPage * hashMultiplier;
+		return hc + channelId * hashMultiplier + page * hashMultiplier + getSubPage() * hashMultiplier;
 	}
 	
 	@Override
@@ -28,7 +40,7 @@ public class TxtKey {
 			return false;
 		} else if (o instanceof TxtKey) {
 			TxtKey other = (TxtKey) o;
-			return channelId == other.channelId && page == other.page && subPage == other.subPage; 
+			return channelId == other.channelId && page == other.page && getSubPage() == other.getSubPage(); 
 		} else {
 			return false;
 		}
@@ -36,7 +48,7 @@ public class TxtKey {
 	
 	@Override
 	public String toString() {
-		return "TxtKey[channel=" + channelId + ", page=" + page + ", subPage=" + subPage + "]";
+		return "TxtKey[channel=" + channelId + ", page=" + page + ", subPage=" + getSubPage() + "]";
 	}
 	
 }

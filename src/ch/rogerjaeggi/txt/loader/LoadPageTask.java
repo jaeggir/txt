@@ -8,7 +8,8 @@ import java.util.List;
 
 import android.graphics.Rect;
 import ch.rogerjaeggi.txt.EChannel;
-import ch.rogerjaeggi.txt.loader.cache.InMemoryResultCache;
+import ch.rogerjaeggi.txt.loader.cache.TxtCache;
+import ch.rogerjaeggi.txt.loader.cache.TxtKey;
 import ch.rogerjaeggi.utils.tasks.BetterTask;
 
 public abstract class LoadPageTask extends BetterTask<Void, Void, TxtResult> {
@@ -52,13 +53,13 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, TxtResult> {
 		try {
 			TxtResult cachedResult = null;
 			if (!forceRefresh) {
-				cachedResult = InMemoryResultCache.getResult(channel, page, subPage);
+				cachedResult = TxtCache.get(new TxtKey(channel, page, subPage));
 			}
 			if (cachedResult != null) {
 				return cachedResult;
 			} else {
 				TxtResult result = doWork();
-				InMemoryResultCache.storeResult(channel, page, subPage, result);
+				TxtCache.put(new TxtKey(channel, page, subPage), result);
 				return result;
 			}
 		} catch (FileNotFoundException e) {
@@ -105,7 +106,7 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, TxtResult> {
 	}
 	
 	private boolean canLoadFromCache() {
-		return !forceRefresh && InMemoryResultCache.contains(channel, page, subPage);
+		return !forceRefresh && TxtCache.contains(new TxtKey(channel, page, subPage));
 	}
 	
 	protected abstract TxtResult doWork() throws FileNotFoundException, IOException;
