@@ -29,7 +29,7 @@ public class HttpClientTask extends LoadPageTask {
 
 	@Override
 	protected TxtResult doWork() throws FileNotFoundException, IOException {
-		AndroidHttpClient http = AndroidHttpClient.newInstance("ch.rogerjaeggi.ch");
+		AndroidHttpClient http = AndroidHttpClient.newInstance("ch.rogerjaeggi.txt");
 		try {
 			URI uri = new URI(BASE_URL + "dynpics/" + channel.getUrl() + "/" + page + "-0" + subPage + ".gif");
 			HttpUriRequest request = new HttpGet(uri);
