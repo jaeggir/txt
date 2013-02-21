@@ -99,7 +99,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		boolean largeScreen = (screenLayout &  Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE;
 		boolean xLargeScreen = (screenLayout &  Configuration.SCREENLAYOUT_SIZE_MASK) == 4; // xLarge, not available in api level 8
 		if (largeScreen || xLargeScreen || isLandscapeMode()) {
-			setTitle(Settings.getChannel(this) + " - " + getCurrentPage());
+			setTitle(Settings.getChannel(this).getName() + " - " + getCurrentPage());
 		} else {
 			setTitle(Integer.toString(getCurrentPage()));
 		}
