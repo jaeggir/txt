@@ -75,7 +75,7 @@ public class HttpClientTask extends LoadPageTask {
 
 	@Override
 	protected List<TouchableArea> findTouchableAreas() {
-		AndroidHttpClient http = AndroidHttpClient.newInstance("SimpleTxt");
+		AndroidHttpClient http = AndroidHttpClient.newInstance("ch.rogerjaeggi.txt");
 		try {
 			URI uri = new URI(BASE_URL  + channel.getUrl() + "/" + page + "-0" + subPage + ".html");
 			HttpUriRequest request = new HttpGet(uri);
