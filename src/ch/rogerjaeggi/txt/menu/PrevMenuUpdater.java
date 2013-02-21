@@ -15,9 +15,12 @@ public class PrevMenuUpdater implements MenuUpdater {
 	
 	@Override
 	public void update(int page) {
-		boolean enabled = page > 100;
-		item.setEnabled(enabled);
-		item.setIcon(enabled ? R.drawable.ic_find_previous_holo_dark: R.drawable.ic_find_previous_holo_dark_disabled);
+		item.setEnabled(isEnabled(page));
+		item.setIcon(isEnabled(page) ? R.drawable.ic_find_previous_holo_dark: R.drawable.ic_find_previous_holo_dark_disabled);
+	}
+	
+	private boolean isEnabled(int page) {
+		return page > 100;
 	}
 	
 	@Override
