@@ -122,7 +122,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	}
 
 	private void runLoadPageTask(final int page, int subIndex, boolean forceRefresh) {
-//		String baseUrl = BASE_URL + "dynpics" + Settings.getChannel(PageActivity.this).getUrl() + "/";
 		if (task != null) {
 			cancelRefreshIndicators();
 			task.cancel(true);
