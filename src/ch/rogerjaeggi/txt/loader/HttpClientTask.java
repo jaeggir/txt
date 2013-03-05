@@ -17,41 +17,48 @@ import org.apache.http.client.methods.HttpUriRequest;
 import android.graphics.BitmapFactory;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
-import ch.rogerjaeggi.txt.EChannel;
+import ch.rogerjaeggi.txt.loader.cache.TxtKey;
 import ch.rogerjaeggi.utils.Logging;
 
 
 public class HttpClientTask extends LoadPageTask {
 
-	public HttpClientTask(EChannel channel, int page, int subPage, boolean loadPageLinks, boolean forceRefresh) {
-		super(channel, page, subPage, loadPageLinks, forceRefresh);
+	public HttpClientTask(PageRequest request) {
+		super(request);
 	}
 
 	@Override
-	protected TxtResult doWork() throws FileNotFoundException, IOException {
-		AndroidHttpClient http = AndroidHttpClient.newInstance("ch.rogerjaeggi.txt");
+	protected TxtResult fetchPage() throws FileNotFoundException, IOException {
+		
+		AndroidHttpClient client = AndroidHttpClient.newInstance("ch.rogerjaeggi.txt");
+		
 		try {
-			URI uri = new URI(BASE_URL + "dynpics/" + channel.getUrl() + "/" + page + "-0" + subPage + ".gif");
-			HttpUriRequest request = new HttpGet(uri);
-			if (forceRefresh) {
-				request.addHeader("Cache-Control", "no-cache");
+			
+			HttpUriRequest httpRequest = new HttpGet(new URI(getImageUrl()));
+
+			if (getPageRequest().isForceRefresh()) {
+				httpRequest.addHeader("Cache-Control", "no-cache");
 			}
-			HttpResponse response = http.execute(request);
+			
+			HttpResponse response = client.execute(httpRequest);
+			
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-				if (subPage == 0) {
-					subPage++;
-					return doWork();
+				TxtKey key = getPageRequest().getKey();
+				if (key.getSubPage() == 0) {
+					key.incrementSubPage();
+					return fetchPage();
 				} else {
 					throw new FileNotFoundException();
 				}
 			} else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+				
 				ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
 				try {
 					response.getEntity().writeTo(dataStream);
 					final byte[] imgData = dataStream.toByteArray();
 					BitmapFactory.Options options = new BitmapFactory.Options();
-					TxtResult result = new TxtResult(BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options));
-					if (loadPageLinks) {
+					TxtResult result = new TxtResult(getPageRequest().getKey(), BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options));
+					if (getPageRequest().isLoadPageLinks()) {
 						result.addTouchableAreas(findTouchableAreas());
 					}
 					return result;
@@ -63,26 +70,29 @@ public class HttpClientTask extends LoadPageTask {
 					}
 				}
 			} else {
-				Log.e(TAG, "Could not load Bitmap from: " + BASE_URL + "dynpics/" + channel + "/" + page + "-0" + subPage + ".gif, responseCode=" + response.getStatusLine().getStatusCode());
-				return new TxtResult(null);
+				Log.e(TAG, "Could not load Bitmap from: " + getImageUrl() + ", responseCode=" + response.getStatusLine().getStatusCode());
+				return new TxtResult(null, null);
 			}
 		} catch (URISyntaxException e) {
-			return new TxtResult(null);
+			return new TxtResult(null, null);
 		} finally {
-			http.close();
+			client.close();
 		}
 	}
 
 	@Override
 	protected List<TouchableArea> findTouchableAreas() {
+		
 		AndroidHttpClient http = AndroidHttpClient.newInstance("ch.rogerjaeggi.txt");
+		
 		try {
-			URI uri = new URI(BASE_URL  + channel.getUrl() + "/" + page + "-0" + subPage + ".html");
-			HttpUriRequest request = new HttpGet(uri);
-			if (forceRefresh) {
-				request.addHeader("Cache-Control", "no-cache");
+			HttpUriRequest httpRequest = new HttpGet(new URI(getPageUrl()));
+			
+			if (getPageRequest().isForceRefresh()) {
+				httpRequest.addHeader("Cache-Control", "no-cache");
 			}
-			HttpResponse response = http.execute(request);
+			
+			HttpResponse response = http.execute(httpRequest);
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 				InputStreamReader isr = new InputStreamReader(response.getEntity().getContent());
 			    BufferedReader br = new BufferedReader(isr);

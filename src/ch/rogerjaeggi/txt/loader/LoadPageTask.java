@@ -1,5 +1,7 @@
 package ch.rogerjaeggi.txt.loader;
 
+import static ch.rogerjaeggi.txt.Constants.TXT_BASE_URL;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,109 +9,66 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.Rect;
-import ch.rogerjaeggi.txt.EChannel;
 import ch.rogerjaeggi.txt.loader.cache.TxtCache;
 import ch.rogerjaeggi.txt.loader.cache.TxtKey;
-import ch.rogerjaeggi.utils.tasks.BetterTask;
 
-public abstract class LoadPageTask extends BetterTask<Void, Void, TxtResult> {
+public abstract class LoadPageTask {
 
 	protected static final int IO_BUFFER_SIZE = 4 * 1024;
 
 	protected static final String TAG = "txt.pageActivity";
-
-	protected static final String BASE_URL = "http://www.teletext.ch/";
 	
-	protected final EChannel channel;
-	protected final int page;
-	protected int subPage;
-	protected final boolean loadPageLinks;
-	protected final boolean forceRefresh;
+	private final PageRequest request;
 
 	private FileNotFoundException error;
 	
-	public LoadPageTask(EChannel channel, int page, int subPage, boolean loadPageLinks, boolean forceRefresh) {
-		this.channel = channel;
-		this.page = page;
-		this.subPage = subPage;
-		this.loadPageLinks = loadPageLinks;
-		this.forceRefresh = forceRefresh;
+	public LoadPageTask(PageRequest request) {
+		this.request = request;
 	}
 	
-	public int getSubPage() { 
-		return subPage;
-	}
-
-	public int getPage() {
-		return page;
+	public PageRequest getPageRequest() { 
+		return request;
 	}
 	
 	public boolean doesPageExists() {
 		return error == null;
 	}
 	
-	@Override
-	protected TxtResult doInBackground(Void... params) {
+	public TxtResult execute() {
+		TxtKey key = request.getKey();
 		try {
 			TxtResult cachedResult = null;
-			if (!forceRefresh) {
-				cachedResult = TxtCache.get(new TxtKey(channel, page, subPage));
+			if (!request.isForceRefresh()) {
+				cachedResult = TxtCache.get(key);
 			}
 			if (cachedResult != null) {
 				return cachedResult;
 			} else {
-				TxtResult result = doWork();
-				TxtCache.put(new TxtKey(channel, page, subPage), result);
+				TxtResult result = fetchPage();
+				TxtCache.put(key, result);
 				return result;
 			}
 		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 			error = e;
-			return new TxtResult(null);
+			return new TxtResult(key, null);
 		} catch (IOException e) {
-			return new TxtResult(null);
-		}
-	}
-	
-	private IPageActivityCallable getPageCallable() {
-		if (getCallable() instanceof IPageActivityCallable) {
-			return (IPageActivityCallable) getCallable();
-		} else {
-			return null;
+			e.printStackTrace();
+			return new TxtResult(key, null);
 		}
 	}
 
-	@Override
-	protected void onPreExecute() {
-		if (!canLoadFromCache()) {
-			if (getPageCallable() != null) {
-				getPageCallable().startRefreshIndicators();
-			}
-			super.onPreExecute();
-		}
+	protected String getImageUrl() {
+		TxtKey key = request.getKey();
+		return TXT_BASE_URL + "dynpics/" + key.getChannel().getUrl() + "/" + key.getPage() + "-0" + key.getSubPage() + ".gif";
 	}
 	
-	@Override
-	protected void onCancelled() {
-		if (getPageCallable() != null) {
-			getPageCallable().cancelRefreshIndicators();
-			getPageCallable().updateMenuItems();
-		}
-		super.onCancelled();
+	protected String getPageUrl() {
+		TxtKey key = request.getKey();
+		return TXT_BASE_URL  + key.getChannel().getUrl() + "/" + key.getPage() + "-0" + key.getSubPage() + ".html";
 	}
 	
-	@Override
-	protected void onPostExecute(TxtResult result) {
-		if (getPageCallable() != null) {
-			getPageCallable().cancelRefreshIndicators();
-		}
-		super.onPostExecute(result);
-	}
-	
-	private boolean canLoadFromCache() {
-		return !forceRefresh && TxtCache.contains(new TxtKey(channel, page, subPage));
-	}
-	
-	protected abstract TxtResult doWork() throws FileNotFoundException, IOException;
+	protected abstract TxtResult fetchPage() throws FileNotFoundException, IOException;
 	
 	protected abstract List<TouchableArea> findTouchableAreas();
 	
@@ -124,7 +83,7 @@ public abstract class LoadPageTask extends BetterTask<Void, Void, TxtResult> {
 	    			areas.add(area);
 	    		}
 	    	}
-	    	if (s.contains("map") && s.contains("blacktxt_links_" + (subPage == 0 ? 0 : subPage - 1))) {
+	    	if (s.contains("map") && s.contains("blacktxt_links_" + (request.getKey().getSubPage() == 0 ? 0 : request.getKey().getSubPage() - 1))) {
 	    		start = true;
 	    	}
 	    	if (start && s.contains("</map>")) {

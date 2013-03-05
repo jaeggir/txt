@@ -1,8 +1,11 @@
 package ch.rogerjaeggi.txt;
 
+import java.io.File;
 import java.util.Stack;
 
 import android.app.Application;
+import android.os.Build;
+import ch.rogerjaeggi.txt.loader.RequestManager;
 import ch.rogerjaeggi.utils.Logging;
 
 
@@ -12,13 +15,33 @@ public class TxtApplication extends Application {
 	
 	private int currentPageIndex = 0;
 	
-	private Stack<Page> history;
+	private Stack<Page> history;	
+	
+	private RequestManager requestManager;
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
 		Logging.init(getApplicationContext());
+		enableHttpResponseCache();
+		
+		
 		history = new Stack<Page>();
+		requestManager = new RequestManager();
+		requestManager.init();
+	}
+	
+	private void enableHttpResponseCache() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		    try {
+		        long httpCacheSize = 1 * 1024 * 1024; // 1 MiB
+		        File httpCacheDir = new File(getApplicationContext().getCacheDir(), "http");
+		        Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class).invoke(null, httpCacheDir, httpCacheSize);
+		    } catch (Exception httpResponseCacheNotAvailable) {
+		    	// ignore
+		    }
+		}
 	}
 	
 	public void setCurrentPage(int page) {
@@ -55,6 +78,10 @@ public class TxtApplication extends Application {
 		} else {
 			return history.pop();
 		}
+	}
+	
+	public RequestManager getRequestManager() {
+		return requestManager;
 	}
 
 }

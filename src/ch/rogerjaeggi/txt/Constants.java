@@ -2,6 +2,9 @@ package ch.rogerjaeggi.txt;
 
 public class Constants {
 
+
+	public static final String TXT_BASE_URL = "http://www.teletext.ch/";
+	
 	public static final String EXTRA_PAGE = "extra.page";
 	public static final String EXTRA_REFRESH = "extra.refresh";
 }

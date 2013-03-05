@@ -13,12 +13,17 @@
     <string name="credits_programming">Programming</string>
 	<string name="credits_data">Data</string>
 	<string name="errorPageNotFound">Page %d does not exist</string>
-	<string name="errorConnectionProblem">Connection problem occured. You may try again later.</string>
+	<string name="errorConnectionProblem">Connection problem occurred. You may try again later.</string>
 	<string name="prefsChannelDialogTitle">Choose your channel</string>
 	<string name="prefsChannelTitle">Channel</string>
 	<string name="prefsChannelSummary">Current channel: %s</string>
 	<string name="prefsClickableNumbersTitle">Enable Clickable Page Numbers</string>
+	<string name="prefsPreloadPagesDialogTitle">Choose how many pages to preload</string>
+	<string name="prefsPreloadPagesTitle">Preload of pages</string>
+	<string name="prefsPreloadPagesSummary">Preloading %s pages.</string>	
 	<string name="stateDisabled">Disabled</string>
 	<string name="stateWifi">Only when connected to WiFi</string>
 	<string name="stateAlways">Always</string>
+	
+	
 </resources>

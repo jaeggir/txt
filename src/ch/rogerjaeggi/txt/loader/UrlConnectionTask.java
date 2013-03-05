@@ -3,7 +3,6 @@ package ch.rogerjaeggi.txt.loader;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,29 +11,25 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
-import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Log;
-import ch.rogerjaeggi.txt.EChannel;
 import ch.rogerjaeggi.utils.Logging;
 
 
 public class UrlConnectionTask extends LoadPageTask {
 
-	public UrlConnectionTask(Context context, EChannel channel, int page, int subPage, boolean loadPageLinks, boolean forceRefresh) {
-		super(channel, page, subPage, loadPageLinks, forceRefresh);
+	public UrlConnectionTask(PageRequest request) {
+		super(request);
 
 		disableConnectionReuseIfNecessary();
-		enableHttpResponseCache(context);
 	}
 
 	@Override
-	protected TxtResult doWork() throws FileNotFoundException, IOException {
+	protected TxtResult fetchPage() throws FileNotFoundException, IOException {
 		try {
-			URL url = new URL(BASE_URL + "dynpics/" + channel.getUrl() + "/" + page + "-0" + subPage + ".gif");
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			if (forceRefresh) {
+			HttpURLConnection connection = (HttpURLConnection) new URL(getImageUrl()).openConnection();
+			if (getPageRequest().isForceRefresh()) {
 				connection.addRequestProperty("Cache-Control", "no-cache");
 			}
 			ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
@@ -47,21 +42,23 @@ public class UrlConnectionTask extends LoadPageTask {
 				}
 				final byte[] imgData = dataStream.toByteArray();
 				BitmapFactory.Options options = new BitmapFactory.Options();
-				TxtResult result = new TxtResult(BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options));
-				if (loadPageLinks) {
+				TxtResult result = new TxtResult(getPageRequest().getKey(), BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options));
+				if (getPageRequest().isLoadPageLinks()) {
 					result.addTouchableAreas(findTouchableAreas());
 				}
 				return result;
 			} catch (FileNotFoundException e) {
-				if (subPage == 0) {
-					subPage++;
-					return doWork();
+				
+				if (getPageRequest().getKey().getSubPage() == 0) {
+					getPageRequest().getKey().incrementSubPage();
+					return fetchPage();
 				}
-				Log.e(TAG, "Could not load Bitmap from: " + BASE_URL + "dynpics/" + channel + "/" + page + "-0" + subPage + ".gif");
+				
+				Log.e(TAG, "Could not load Bitmap from: " + getImageUrl());
 				if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
 					throw e;
 				} else {
-					return new TxtResult(null);
+					return new TxtResult(null, null);
 				}
 			} finally {
 				try { 
@@ -79,9 +76,8 @@ public class UrlConnectionTask extends LoadPageTask {
 	@Override
 	protected List<TouchableArea> findTouchableAreas() {
 		try {
-			URL url = new URL(BASE_URL  + channel.getUrl() + "/" + page + "-0" + subPage + ".html");
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			if (forceRefresh) {
+			HttpURLConnection connection = (HttpURLConnection) new URL(getPageUrl()).openConnection();
+			if (getPageRequest().isForceRefresh()) {
 				connection.addRequestProperty("Cache-Control", "no-cache");
 			}
 			
@@ -108,16 +104,6 @@ public class UrlConnectionTask extends LoadPageTask {
 	    // HTTP connection reuse which was buggy pre-froyo (which we here not support..)
 	    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
 	        System.setProperty("http.keepAlive", "false");
-	    }
-	}
-	
-	private void enableHttpResponseCache(Context context) {
-	    try {
-	        long httpCacheSize = 1 * 1024 * 1024; // 1 MiB
-	        File httpCacheDir = new File(context.getCacheDir(), "http");
-	        Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class).invoke(null, httpCacheDir, httpCacheSize);
-	    } catch (Exception httpResponseCacheNotAvailable) {
-	    	// ignore
 	    }
 	}
 

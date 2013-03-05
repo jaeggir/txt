@@ -7,7 +7,7 @@ public class TxtKey {
 
 	private final int channelId;
 	private final int page;
-	private final int subPage;
+	private int subPage;
 	
 	public TxtKey(EChannel channel, int page, int subPage) {
 		this.channelId = channel.getId();
@@ -25,6 +25,10 @@ public class TxtKey {
 	
 	public int getSubPage() {
 		return subPage;
+	}
+
+	public void incrementSubPage() {
+		this.subPage++;
 	}
 
 	@Override
