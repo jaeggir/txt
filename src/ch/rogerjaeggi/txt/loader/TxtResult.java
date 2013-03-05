@@ -1,5 +1,7 @@
 package ch.rogerjaeggi.txt.loader;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,6 +21,8 @@ public class TxtResult {
 	
 	private final Bitmap bitmap;
 	
+	private final Exception exception;
+	
 	private final List<TouchableArea> touchableAreas;
 	
 	public TxtResult(TxtKey key, Bitmap bitmap) {
@@ -26,14 +30,28 @@ public class TxtResult {
 		this.bitmap = bitmap;
 		this.touchableAreas = new LinkedList<TouchableArea>();
 		this.timestamp = System.currentTimeMillis();
+		this.exception = null;
 	}
 
+	// TODO think about using error codes
+	public TxtResult(TxtKey key, Exception exception) {
+		this.key = key;
+		this.exception = exception;
+		this.bitmap = null;
+		this.touchableAreas = new LinkedList<TouchableArea>();
+		this.timestamp = System.currentTimeMillis();
+	}
+	
 	public TxtKey getKey() {
 		return key;
 	}
 	
 	public Bitmap getBitmap() {
 		return bitmap;
+	}
+
+	public Exception getError() {
+		return exception;
 	}
 	
 	public TouchableArea intersects(Rect r) {
@@ -60,6 +78,22 @@ public class TxtResult {
 			boolean result = !bitmap.isRecycled() && !expired;
 			Logging.d(this, "isValid(): isRecycled=" + bitmap.isRecycled() + ", expired=" + expired + ", returning " + result);
 			return result;
+		}
+	}
+	
+	public boolean isConnectionError() {
+		if (exception == null) {
+			return false;
+		} else {
+			return exception instanceof IOException;
+		}
+	}
+	
+	public boolean isPageDoesNotExistError() {
+		if (exception == null) {
+			return false;
+		} else {
+			return exception instanceof FileNotFoundException;
 		}
 	}
 	

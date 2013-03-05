@@ -7,4 +7,5 @@ public class Constants {
 	
 	public static final String EXTRA_PAGE = "extra.page";
 	public static final String EXTRA_REFRESH = "extra.refresh";
+	public static final String EXTRA_REQUESTED_PAGE = "extra.requestedPage";
 }

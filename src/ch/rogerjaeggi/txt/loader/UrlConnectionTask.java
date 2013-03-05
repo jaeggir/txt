@@ -27,49 +27,47 @@ public class UrlConnectionTask extends LoadPageTask {
 
 	@Override
 	protected TxtResult fetchPage() throws FileNotFoundException, IOException {
+		
+		HttpURLConnection connection = (HttpURLConnection) new URL(getImageUrl()).openConnection();
+		if (getPageRequest().isForceRefresh()) {
+			connection.addRequestProperty("Cache-Control", "no-cache");
+		}
+		ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
 		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(getImageUrl()).openConnection();
-			if (getPageRequest().isForceRefresh()) {
-				connection.addRequestProperty("Cache-Control", "no-cache");
+			InputStream in = new BufferedInputStream(connection.getInputStream());
+			final byte[] data = new byte[IO_BUFFER_SIZE];
+			int read = 0;
+			while ((read = in.read(data)) != -1) {
+				dataStream.write(data, 0, read);
 			}
-			ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-			try {
-				InputStream in = new BufferedInputStream(connection.getInputStream());
-				final byte[] data = new byte[IO_BUFFER_SIZE];
-				int read = 0;
-				while ((read = in.read(data)) != -1) {
-					dataStream.write(data, 0, read);
-				}
-				final byte[] imgData = dataStream.toByteArray();
-				BitmapFactory.Options options = new BitmapFactory.Options();
-				TxtResult result = new TxtResult(getPageRequest().getKey(), BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options));
-				if (getPageRequest().isLoadPageLinks()) {
-					result.addTouchableAreas(findTouchableAreas());
-				}
-				return result;
-			} catch (FileNotFoundException e) {
-				
-				if (getPageRequest().getKey().getSubPage() == 0) {
-					getPageRequest().getKey().incrementSubPage();
-					return fetchPage();
-				}
-				
-				Log.e(TAG, "Could not load Bitmap from: " + getImageUrl());
-				if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-					throw e;
-				} else {
-					return new TxtResult(null, null);
-				}
-			} finally {
-				try { 
-					dataStream.close(); 
-				} catch (IOException e) {
-					// ignore
-				}
-				connection.disconnect();
+			final byte[] imgData = dataStream.toByteArray();
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			TxtResult result = new TxtResult(getPageRequest().getKey(), BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options));
+			if (getPageRequest().isLoadPageLinks()) {
+				result.addTouchableAreas(findTouchableAreas());
 			}
+			return result;
 		} catch (FileNotFoundException e) {
-			throw e;
+			
+			if (getPageRequest().getKey().getSubPage() == 0) {
+				getPageRequest().getKey().incrementSubPage();
+				return fetchPage();
+			}
+			
+			Log.e(TAG, "Could not load Bitmap from: " + getImageUrl());
+			if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+				throw e;
+			} else {
+				Logging.d(this, "fetching page " + getPageRequest().getKey() + " failed, error code: " + connection.getResponseCode());
+				return new TxtResult(getPageRequest().getKey(), new IllegalArgumentException());
+			}
+		} finally {
+			try { 
+				dataStream.close(); 
+			} catch (IOException e) {
+				// ignore
+			}
+			connection.disconnect();
 		}
 	}
 

@@ -13,7 +13,7 @@ public class TxtApplication extends Application {
 	
 	private int currentPage = 100;
 	
-	private int currentPageIndex = 0;
+	private int currentSubPage = 0;
 	
 	private Stack<Page> history;	
 	
@@ -52,12 +52,12 @@ public class TxtApplication extends Application {
 		return currentPage;
 	}
 
-	public int getCurrentPageIndex() {
-		return currentPageIndex;
+	public int getCurrentSubPage() {
+		return currentSubPage;
 	}
 
-	public void setCurrentPageIndex(int index) {
-		this.currentPageIndex = index;
+	public void setCurrentSubPage(int subPage) {
+		this.currentSubPage = subPage;
 	}
 	
 	public void pushHistory(EChannel channel, int page, int subPage) {

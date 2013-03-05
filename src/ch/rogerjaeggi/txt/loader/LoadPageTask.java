@@ -19,8 +19,6 @@ public abstract class LoadPageTask {
 	protected static final String TAG = "txt.pageActivity";
 	
 	private final PageRequest request;
-
-	private FileNotFoundException error;
 	
 	public LoadPageTask(PageRequest request) {
 		this.request = request;
@@ -28,10 +26,6 @@ public abstract class LoadPageTask {
 	
 	public PageRequest getPageRequest() { 
 		return request;
-	}
-	
-	public boolean doesPageExists() {
-		return error == null;
 	}
 	
 	public TxtResult execute() {
@@ -49,12 +43,9 @@ public abstract class LoadPageTask {
 				return result;
 			}
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			error = e;
-			return new TxtResult(key, null);
+			return new TxtResult(key, e);
 		} catch (IOException e) {
-			e.printStackTrace();
-			return new TxtResult(key, null);
+			return new TxtResult(key, e);
 		}
 	}
 

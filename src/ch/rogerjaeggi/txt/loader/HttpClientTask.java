@@ -31,7 +31,8 @@ public class HttpClientTask extends LoadPageTask {
 	protected TxtResult fetchPage() throws FileNotFoundException, IOException {
 		
 		AndroidHttpClient client = AndroidHttpClient.newInstance("ch.rogerjaeggi.txt");
-		
+
+		TxtKey key = getPageRequest().getKey();
 		try {
 			
 			HttpUriRequest httpRequest = new HttpGet(new URI(getImageUrl()));
@@ -43,7 +44,6 @@ public class HttpClientTask extends LoadPageTask {
 			HttpResponse response = client.execute(httpRequest);
 			
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-				TxtKey key = getPageRequest().getKey();
 				if (key.getSubPage() == 0) {
 					key.incrementSubPage();
 					return fetchPage();
@@ -71,10 +71,10 @@ public class HttpClientTask extends LoadPageTask {
 				}
 			} else {
 				Log.e(TAG, "Could not load Bitmap from: " + getImageUrl() + ", responseCode=" + response.getStatusLine().getStatusCode());
-				return new TxtResult(null, null);
+				return new TxtResult(key, new IllegalArgumentException());
 			}
 		} catch (URISyntaxException e) {
-			return new TxtResult(null, null);
+			return new TxtResult(key, e);
 		} finally {
 			client.close();
 		}
