@@ -1,5 +1,7 @@
 package ch.rogerjaeggi.txt.loader;
 
+import static ch.rogerjaeggi.txt.loader.LoadPageTaskFactory.createTask;
+
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -9,15 +11,12 @@ public class RequestManager {
 
 	private Thread worker;
 
-	private final Queue<PageRequest> requests;
-
-//	private final Map<PageRequest, TxtResult> lookup;
+	private final Queue<PageKey> requests;
 
 	private IRequestListener listener;
 
 	public RequestManager() {
-		this.requests = new LinkedBlockingQueue<PageRequest>();
-//		this.lookup = new HashMap<PageRequest, TxtResult>();
+		this.requests = new LinkedBlockingQueue<PageKey>();
 	}
 
 	public void setListener(IRequestListener listener) {
@@ -30,11 +29,11 @@ public class RequestManager {
 		this.listener = null;
 	}
 
-	public synchronized void requestPage(PageRequest request) {
-		if (requests.contains(request)) {
-			Logging.d(this, "queue contains request for page " + request.getKey());
+	public synchronized void requestPage(PageKey key) {
+		if (requests.contains(key)) {
+			Logging.d(this, "queue contains request for page " + key);
 		} else {
-			requests.offer(request);
+			requests.offer(key);
 			this.notifyAll();
 		}
 	}
@@ -46,18 +45,19 @@ public class RequestManager {
 			public void run() {
 				try {
 					while (true) {
-						PageRequest request = requests.poll();
-						if (request == null) {
+						PageKey key = requests.poll();
+						if (key == null) {
 							synchronized(RequestManager.this) {
 								RequestManager.this.wait();
 							}
 						} else {
-							LoadPageTask task = LoadPageTaskFactory.createTask(request);
+							LoadPageTask task = createTask(key);
 							TxtResult result = task.execute();
 							notifyListener(result);
 						}
 					}
 				} catch (InterruptedException e) {
+					// TODO error handling
 					e.printStackTrace();
 				}
 			}

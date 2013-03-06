@@ -2,48 +2,40 @@ package ch.rogerjaeggi.txt.loader;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import ch.rogerjaeggi.txt.loader.cache.TxtKey;
 import ch.rogerjaeggi.utils.Logging;
 
 
 public class TxtResult {
 
-	private static final long MAX_AGE = 5 * 60 * 1000l;
-	
-	private final TxtKey key;
-	
-	private final long timestamp;
+	private PageInfo pageInfo;
 	
 	private final Bitmap bitmap;
 	
-	private final Exception exception;
+	private static final long MAX_AGE = 5 * 60 * 1000l;
+		
+	private final long timestamp;
 	
-	private final List<TouchableArea> touchableAreas;
+	private final Exception exception;	
 	
-	public TxtResult(TxtKey key, Bitmap bitmap) {
-		this.key = key;
+	public TxtResult(PageInfo pageInfo, Bitmap bitmap) {
+		this.pageInfo = pageInfo;
 		this.bitmap = bitmap;
-		this.touchableAreas = new LinkedList<TouchableArea>();
 		this.timestamp = System.currentTimeMillis();
 		this.exception = null;
 	}
 
 	// TODO think about using error codes
-	public TxtResult(TxtKey key, Exception exception) {
-		this.key = key;
-		this.exception = exception;
-		this.bitmap = null;
-		this.touchableAreas = new LinkedList<TouchableArea>();
-		this.timestamp = System.currentTimeMillis();
-	}
+//	public TxtResult(TxtKey key, Exception exception) {
+//		this.key = key;
+//		this.exception = exception;
+//		this.bitmap = null;
+//		this.timestamp = System.currentTimeMillis();
+//	}
 	
-	public TxtKey getKey() {
-		return key;
+	public PageInfo getPageInfo() {
+		return pageInfo;
 	}
 	
 	public Bitmap getBitmap() {
@@ -55,7 +47,7 @@ public class TxtResult {
 	}
 	
 	public TouchableArea intersects(Rect r) {
-		for (TouchableArea area : touchableAreas) {
+		for (TouchableArea area : pageInfo.getLinks()) {
 			if (area.intersects(r)) {
 				return area;
 			}
@@ -63,12 +55,6 @@ public class TxtResult {
 		return null;
 	}
 
-	public void addTouchableAreas(List<TouchableArea> areas) {
-		if (areas != null) {
-			touchableAreas.addAll(areas);
-		}
-	}
-	
 	public boolean isValid() {
 		if (bitmap == null) {
 			Logging.d(this, "isValid(): bitmap is null, returning true");
@@ -95,6 +81,10 @@ public class TxtResult {
 		} else {
 			return exception instanceof FileNotFoundException;
 		}
+	}
+
+	public void setPageInfo(PageInfo pageInfo) {
+		this.pageInfo = pageInfo;
 	}
 	
 }

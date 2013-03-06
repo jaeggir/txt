@@ -30,22 +30,22 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import ch.rogerjaeggi.txt.Constants;
-import ch.rogerjaeggi.txt.EPageLinkSetting;
-import ch.rogerjaeggi.txt.Page;
+import ch.rogerjaeggi.txt.EChannel;
 import ch.rogerjaeggi.txt.R;
 import ch.rogerjaeggi.txt.R.anim;
 import ch.rogerjaeggi.txt.Settings;
 import ch.rogerjaeggi.txt.TxtApplication;
 import ch.rogerjaeggi.txt.loader.IRequestListener;
-import ch.rogerjaeggi.txt.loader.PageRequest;
+import ch.rogerjaeggi.txt.loader.PageInfo;
+import ch.rogerjaeggi.txt.loader.PageKey;
 import ch.rogerjaeggi.txt.loader.RequestManager;
 import ch.rogerjaeggi.txt.loader.TouchableArea;
+import ch.rogerjaeggi.txt.loader.TxtCache;
 import ch.rogerjaeggi.txt.loader.TxtResult;
-import ch.rogerjaeggi.txt.loader.cache.TxtCache;
-import ch.rogerjaeggi.txt.loader.cache.TxtKey;
 import ch.rogerjaeggi.txt.menu.NextMenuUpdater;
 import ch.rogerjaeggi.txt.menu.PrevMenuUpdater;
 import ch.rogerjaeggi.txt.menu.RefreshMenuUpdater;
+
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -80,7 +80,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		super.onStart();
 
 		getRequestManager().setListener(this);
-		requestPage(getCurrentPage(), getCurrentSubPage(), false);
+		requestPage(getCurrentPage());
 	}
 
 	@Override
@@ -94,11 +94,15 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (RESULT_OK == resultCode) {
 			
+			EChannel channel = Settings.getChannel(this);
 			if (GO_TO_CODE == requestCode) {
+				int page = data.getIntExtra(Constants.EXTRA_PAGE, 100);
+				int subPage = data.getIntExtra(Constants.EXTRA_SUB_PAGE, 0);
 				boolean refresh = data.getBooleanExtra(Constants.EXTRA_REFRESH, false);
-				requestPage(data.getIntExtra(Constants.EXTRA_PAGE, 100), 0, refresh);
+				requestPage(new PageKey(channel, page, subPage, refresh));
 			} else if (GO_TO_SETTINGS == requestCode) {
-				requestPage(100, 0, false);
+				// TODO replace with "default" start page
+				requestPage(new PageKey(channel, 100, 1));
 			} else {
 				super.onActivityResult(requestCode, resultCode, data);
 			}
@@ -118,18 +122,21 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+
+		PageInfo pageInfo = getCurrentPageInfo();
+		
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
 				item.setEnabled(false);
-				requestPage(getCurrentPage(), getCurrentSubPage(), true);
+				requestPage(pageInfo.getPageKey(true));
 				return true;
 			case R.id.menu_backwards:
 				item.setEnabled(false);
-				requestPage(getCurrentPage() - 1, 0, false);
+				requestPage(pageInfo.getPreviousPageKey());
 				return true;
 			case R.id.menu_forewards:
 				item.setEnabled(false);
-				requestPage(getCurrentPage() + 1, 0, false);
+				requestPage(pageInfo.getNextPageKey());
 				return true;
 			case R.id.menu_credits:
 				showDialog(DIALOG_CREDITS);
@@ -173,14 +180,16 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
+		PageInfo currentPageInfo = getCurrentPageInfo();
+
 		prevMenuUpdater = new PrevMenuUpdater(menu.findItem(R.id.menu_backwards));
-		prevMenuUpdater.update(getCurrentPage());
+		prevMenuUpdater.update(currentPageInfo);
 
 		nextMenuUpdater = new NextMenuUpdater(menu.findItem(R.id.menu_forewards));
-		nextMenuUpdater.update(getCurrentPage());
+		nextMenuUpdater.update(currentPageInfo);
 
 		refreshMenuUpdater = new RefreshMenuUpdater(menu.findItem(R.id.menu_refresh));
-		refreshMenuUpdater.update(getCurrentPage());
+		refreshMenuUpdater.update(currentPageInfo);
 
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -189,10 +198,13 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		int screenLayout = getResources().getConfiguration().screenLayout;
 		boolean largeScreen = (screenLayout & SCREENLAYOUT_SIZE_MASK) == SCREENLAYOUT_SIZE_LARGE;
 		boolean xLargeScreen = (screenLayout & SCREENLAYOUT_SIZE_MASK) == 4; // xLarge, not available in api level 8
+		
+		PageInfo pageInfo = getCurrentPageInfo();
+		
 		if (largeScreen || xLargeScreen || isLandscapeMode()) {
-			setTitle(Settings.getChannel(this).getName() + " - " + getCurrentPage());
+			setTitle(pageInfo.getChannel().getName() + " - " + pageInfo.getPage());
 		} else {
-			setTitle(Integer.toString(getCurrentPage()));
+			setTitle(Integer.toString(pageInfo.getPage()));
 		}
 	}
 
@@ -200,36 +212,34 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		return getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE;
 	}
 
-	private void requestPage(final int page, final int subPage, boolean forceRefresh) {
+	private void requestPage(PageKey key) {
 		startRefreshIndicators();
 		
-		TxtKey key = new TxtKey(Settings.getChannel(PageActivity.this), page, subPage);
-		if (forceRefresh || !TxtCache.contains(key)) {
+		if (key.isForceRefresh() || !TxtCache.contains(key)) {
 			// only show dialog if we have to fetch the page from SwissTXT
 			showDialog(DIALOG_LOADING);
 		}
 
-		boolean loadPageLinks = Settings.getClickableLinkSetting(this).shouldLoadPageLinks(this);
-		getRequestManager().requestPage(new PageRequest(key, loadPageLinks, forceRefresh));
+		getRequestManager().requestPage(key);
 	}
 
-	private int getCurrentPage() {
+	private PageKey getCurrentPage() {
 		return getTxtApplication().getCurrentPage();
 	}
 
-	private int getCurrentSubPage() {
-		return getTxtApplication().getCurrentSubPage();
+	private PageInfo getCurrentPageInfo() {
+		return getTxtApplication().getCurrentPageInfo();
 	}
-
+	
 	private RequestManager getRequestManager() {
 		return getTxtApplication().getRequestManager();
 	}
 
 	private void updateMenuItems() {
 		if (prevMenuUpdater != null) {
-			prevMenuUpdater.update(getCurrentPage());
-			nextMenuUpdater.update(getCurrentPage());
-			refreshMenuUpdater.update(getCurrentPage());
+			prevMenuUpdater.update(getCurrentPageInfo());
+			nextMenuUpdater.update(getCurrentPageInfo());
+			refreshMenuUpdater.update(getCurrentPageInfo());
 		}
 	}
 
@@ -264,11 +274,11 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	public void onBackPressed() {
 		getTxtApplication().popHistory(); // remove current page
 		
-		Page prevPage = getTxtApplication().popHistory();
+		PageKey prevPage = getTxtApplication().popHistory();
 		if (prevPage == null) {
 			super.onBackPressed();
 		} else {
-			requestPage(prevPage.getPage(), prevPage.getSubPage(), false);
+			requestPage(prevPage);
 		}
 	}
 
@@ -289,7 +299,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 					image.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.page_does_not_exists));
 					errorText.setVisibility(View.VISIBLE);
 					if (result.isPageDoesNotExistError()) {
-						((TextView) findViewById(R.id.errorText)).setText(String.format(getString(R.string.errorPageNotFound), result.getKey().getPage()));
+						((TextView) findViewById(R.id.errorText)).setText(String.format(getString(R.string.errorPageNotFound), result.getPageInfo().getPage()));
 					} else if (result.isConnectionError()) {
 						// TODO show toast if we are already showing the same page and only the refresh failed.
 						((TextView) findViewById(R.id.errorText)).setText(R.string.errorConnectionProblem);
@@ -299,7 +309,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 				} else {
 					findViewById(R.id.errorText).setVisibility(View.GONE);
 					image.setImageBitmap(result.getBitmap());
-					getTxtApplication().setCurrentSubPage(result.getKey().getSubPage());
+					// TODO fix ?
+//					getTxtApplication().setCurrentSubPage(result.getPageInfo().getSubPage());
 				}
 				image.setOnClickListener(PageActivity.this);
 				image.setScaleType(isLandscapeMode() ? ScaleType.FIT_CENTER : ScaleType.FIT_XY);
@@ -313,28 +324,25 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 							if (result.getBitmap() == null) {
 								handleSimpleClick();
 							} else {
-								if (Settings.getClickableLinkSetting(PageActivity.this) != EPageLinkSetting.DISABLED) {
-									int x = 0;
-									int y = 0;
-									if (isLandscapeMode()) {
-										float scale = (float) image.getHeight() / result.getBitmap().getHeight();
-										Display display = getWindowManager().getDefaultDisplay();
-										int displayWidth = display.getWidth();
-										x = (int) ((event.getX() - (displayWidth - scale * result.getBitmap().getWidth()) / 2) / scale);
-										y = (int) (event.getY() / scale);
-									} else {
-										Rect r = image.getDrawable().getBounds();
-										float scaleX = (float) (r.right - r.left) / result.getBitmap().getWidth();
-										float scaleY = (float) (r.bottom - r.top) / result.getBitmap().getHeight();
-										x = (int) (event.getX() / scaleX);
-										y = (int) (event.getY() / scaleY);
-									}
-									TouchableArea area = result.intersects(new Rect(x - 5, y - 5, x + 5, y + 5));
-									if (area != null) {
-										requestPage(area.getTarget(), 0, false);
-									} else {
-										handleSimpleClick();
-									}
+								int x = 0;
+								int y = 0;
+								if (isLandscapeMode()) {
+									float scale = (float) image.getHeight() / result.getBitmap().getHeight();
+									Display display = getWindowManager().getDefaultDisplay();
+									int displayWidth = display.getWidth();
+									x = (int) ((event.getX() - (displayWidth - scale * result.getBitmap().getWidth()) / 2) / scale);
+									y = (int) (event.getY() / scale);
+								} else {
+									Rect r = image.getDrawable().getBounds();
+									float scaleX = (float) (r.right - r.left) / result.getBitmap().getWidth();
+									float scaleY = (float) (r.bottom - r.top) / result.getBitmap().getHeight();
+									x = (int) (event.getX() / scaleX);
+									y = (int) (event.getY() / scaleY);
+								}
+								TouchableArea area = result.intersects(new Rect(x - 5, y - 5, x + 5, y + 5));
+								if (area != null) {
+									// TODO find out how to get correct subPage
+									requestPage(new PageKey(result.getPageInfo().getChannel(), area.getTarget(), 0));
 								} else {
 									handleSimpleClick();
 								}
@@ -350,23 +358,27 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 						@Override
 						public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 							try {
+								PageInfo pageInfo = result.getPageInfo();
 								if (e1.getX() - e2.getX() > getSwipeMinDistance() && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-									int nextPage = getCurrentPage() < 899 ? getCurrentPage() + 1 : 100;
-									requestPage(nextPage, 0, false);
-									return true;
+									if (pageInfo.hasNextPage()) {
+										requestPage(pageInfo.getNextPageKey());
+										return true;
+									}
 								} else if (e2.getX() - e1.getX() > getSwipeMinDistance() && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-									if (getCurrentPage() > 100) {
-										requestPage(getCurrentPage() - 1, 0, false);
+									if (pageInfo.hasPreviousPage()) {
+										requestPage(pageInfo.getPreviousPageKey());
 										return true;
 									}
 								} else if (e1.getY() - e2.getY() > getSwipeMinDistance() && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-									if (getCurrentSubPage() > 0 && getCurrentPage() != 100) {
-										requestPage(getCurrentPage(), getCurrentSubPage() - 1, false);
+									if (pageInfo.hasPreviousSubPage()) {
+										requestPage(pageInfo.getPreviousSubPageKey());
 										return true;
 									}
 								} else if (e2.getY() - e1.getY() > getSwipeMinDistance() && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-									requestPage(getCurrentPage(), getCurrentSubPage() + 1, false);
-									return true;
+									if (pageInfo.hasNextSubPage()) {
+										requestPage(pageInfo.getNextSubPageKey());
+										return true;
+									}
 								}
 							} catch (Exception e) {
 								// nothing
@@ -382,7 +394,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 					}
 
 				});
-				getTxtApplication().setCurrentPage(result.getKey().getPage());
+				getTxtApplication().setCurrentPage(result.getPageInfo().getPageKey(false));
+				getTxtApplication().setCurrentPageInfo(result.getPageInfo());
 				image.setVisibility(View.VISIBLE);
 				image.invalidate();
 
@@ -390,7 +403,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 				updateMenuItems();
 				cancelRefreshIndicators();
-				getTxtApplication().pushHistory(Settings.getChannel(PageActivity.this), result.getKey().getPage(), result.getKey().getSubPage());
+				getTxtApplication().pushHistory(result.getPageInfo().getPageKey(false));
 			}
 
 		});

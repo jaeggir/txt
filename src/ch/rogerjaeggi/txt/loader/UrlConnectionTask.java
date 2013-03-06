@@ -9,8 +9,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Log;
@@ -19,19 +19,21 @@ import ch.rogerjaeggi.utils.Logging;
 
 public class UrlConnectionTask extends LoadPageTask {
 
-	public UrlConnectionTask(PageRequest request) {
-		super(request);
+	public UrlConnectionTask(PageKey key) {
+		super(key);
 
+		HttpURLConnection.setFollowRedirects(true);
+		
 		disableConnectionReuseIfNecessary();
 	}
 
 	@Override
-	protected TxtResult fetchPage() throws FileNotFoundException, IOException {
+	protected Bitmap loadImage(String urlToLoad) throws FileNotFoundException, IOException {
+
+		URL url = new URL(urlToLoad);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		setCacheControl(connection);
 		
-		HttpURLConnection connection = (HttpURLConnection) new URL(getImageUrl()).openConnection();
-		if (getPageRequest().isForceRefresh()) {
-			connection.addRequestProperty("Cache-Control", "no-cache");
-		}
 		ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
 		try {
 			InputStream in = new BufferedInputStream(connection.getInputStream());
@@ -42,24 +44,14 @@ public class UrlConnectionTask extends LoadPageTask {
 			}
 			final byte[] imgData = dataStream.toByteArray();
 			BitmapFactory.Options options = new BitmapFactory.Options();
-			TxtResult result = new TxtResult(getPageRequest().getKey(), BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options));
-			if (getPageRequest().isLoadPageLinks()) {
-				result.addTouchableAreas(findTouchableAreas());
-			}
-			return result;
+			return BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options);
 		} catch (FileNotFoundException e) {
-			
-			if (getPageRequest().getKey().getSubPage() == 0) {
-				getPageRequest().getKey().incrementSubPage();
-				return fetchPage();
-			}
-			
-			Log.e(TAG, "Could not load Bitmap from: " + getImageUrl());
+			Log.e(TAG, "Could not load Bitmap from: " + url);
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-				throw e;
+				throw new FileNotFoundException(urlToLoad);
 			} else {
-				Logging.d(this, "fetching page " + getPageRequest().getKey() + " failed, error code: " + connection.getResponseCode());
-				return new TxtResult(getPageRequest().getKey(), new IllegalArgumentException());
+				Logging.d(this, "fetching page " + getKey() + " failed, error code: " + connection.getResponseCode());
+				throw new IllegalArgumentException(urlToLoad);
 			}
 		} finally {
 			try { 
@@ -72,15 +64,23 @@ public class UrlConnectionTask extends LoadPageTask {
 	}
 
 	@Override
-	protected List<TouchableArea> findTouchableAreas() {
+	protected PageInfo loadPageInfo(String urlToLoad) {
 		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(getPageUrl()).openConnection();
-			if (getPageRequest().isForceRefresh()) {
-				connection.addRequestProperty("Cache-Control", "no-cache");
-			}
+			
+			URL url = new URL(urlToLoad);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			setCacheControl(connection);
 			
 			InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-		    BufferedReader br = new BufferedReader(isr);
+
+			if (!url.getPath().equals(connection.getURL().getPath())) {
+				// redirect, update page info
+				String path = connection.getURL().getPath();
+				String subPage = path.substring(path.length() - 6, path.length() - 5);
+				updateSubPage(subPage);
+			}
+			
+			BufferedReader br = new BufferedReader(isr);
 
 			try {
 				return parsePage(br);
@@ -95,6 +95,12 @@ public class UrlConnectionTask extends LoadPageTask {
 		} catch (IOException e) {
 			Logging.e(this, "IOE", e);
 			return null;
+		}
+	}
+
+	private void setCacheControl(HttpURLConnection connection) {
+		if (isForceRefresh()) {
+			connection.addRequestProperty("Cache-Control", "no-cache");
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package ch.rogerjaeggi.txt.menu;
 
 import ch.rogerjaeggi.txt.R;
+import ch.rogerjaeggi.txt.loader.PageInfo;
 
 import com.actionbarsherlock.view.MenuItem;
 
@@ -14,13 +15,10 @@ public class NextMenuUpdater implements MenuUpdater {
 	}
 	
 	@Override
-	public void update(int page) {
-		item.setEnabled(isEnabled(page));
-		item.setIcon(isEnabled(page) ? R.drawable.ic_find_next_holo_dark: R.drawable.ic_find_next_holo_dark_disabled);
-	}
-	
-	private boolean isEnabled(int page) {
-		return page < 899;
+	public void update(PageInfo pageInfo) {
+		boolean hasNextPage = pageInfo.hasNextPage();
+		item.setEnabled(hasNextPage);
+		item.setIcon(hasNextPage ? R.drawable.ic_find_next_holo_dark: R.drawable.ic_find_next_holo_dark_disabled);
 	}
 	
 	@Override

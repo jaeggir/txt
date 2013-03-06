@@ -1,0 +1,146 @@
+package ch.rogerjaeggi.txt.loader;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import ch.rogerjaeggi.txt.EChannel;
+
+
+public class PageInfo {
+
+	private final Map<String, String> properties;
+	
+	private final List<TouchableArea> links;
+
+	public static PageInfo parse(String json) {
+		int startIndex = json.indexOf("{");
+		int endIndex = json.lastIndexOf("}");
+
+		Map<String, String> props = new HashMap<String, String>();
+
+		if (startIndex != -1 && endIndex != -1) {
+			json = json.substring(startIndex + 1, endIndex);
+			json = json.replace("\"", "");
+			String[] values = json.split(",");
+			for (String value : values) {
+				String[] tmp = value.split(":");
+				if (tmp.length == 2) {
+					props.put(tmp[0], tmp[1]);
+				}
+			}
+			return new PageInfo(props);
+		} else {
+			throw new IllegalArgumentException("Cannot parse '" + json + "'");
+		}
+	}
+	
+	public static PageInfo getDefault() {
+		String json = "Txt.txtPage = {\"Id\":\"SRF1_100_01\",\"Channel\":1,\"PageNr\":100,\"SubpageNr\":1,\"PageUrl\":\"~/SRF1/100-01.html\",\"NumberOfSubpages\":1,\"PreviousPageNr\":-1,\"NextPageNr\":101,\"PreviousSubpageNr\":-1,\"NextSubpageNr\":-1};";	
+		return parse(json);
+	}
+
+	private PageInfo(Map<String, String> properties) {
+		this.properties = properties;
+		this.links = new LinkedList<TouchableArea>();
+	}
+
+	public String getPageUrl() {
+		String pageUrl = getProperty("PageUrl");
+		if (pageUrl.startsWith("~")) {
+			pageUrl = pageUrl.substring(1);
+		}
+		return pageUrl;
+	}
+
+	public int getPage() {
+		return getIntProperty("PageNr", 100);
+	}
+
+	public int getSubPage() {
+		return getIntProperty("SubpageNr", 0);
+	}
+
+	public int getPreviousPage() {
+		return getIntProperty("PreviousPageNr", 100);
+	}
+
+	public int getNextPage() {
+		return getIntProperty("NextPageNr", 100);
+	}
+
+	public int getPreviousSubPage() {
+		return getIntProperty("PreviousSubpageNr", -1);
+	}
+
+	public int getNextSubPage() {
+		return getIntProperty("NextSubpageNr", -1);
+	}
+
+	public EChannel getChannel() {
+		int channel = getIntProperty("Channel", 1);
+		return EChannel.getById(channel);
+	}
+
+	public boolean hasPreviousPage() {
+		return getPreviousPage() != -1;
+	}
+	
+	public boolean hasNextPage() {
+		return getNextPage() != -1;
+	}
+	
+	public boolean hasPreviousSubPage() {
+		return getPreviousSubPage() != -1;
+	}
+
+	public boolean hasNextSubPage() {
+		return getNextSubPage() != -1;
+	}
+
+	public PageKey getPreviousPageKey() {
+		// TODO previousSubPage
+		return new PageKey(getChannel(), getPreviousPage(), 0);
+	}
+
+	public PageKey getNextPageKey() {
+		// TODO nextSubPage
+		return new PageKey(getChannel(), getNextPage(), 0);
+	}
+
+	public PageKey getPageKey(boolean forceRefresh) {
+		return new PageKey(getChannel(), getPage(), getSubPage(), forceRefresh);
+	}
+
+	public PageKey getPreviousSubPageKey() {
+		return new PageKey(getChannel(), getPage(), getPreviousSubPage());
+	}
+
+	public PageKey getNextSubPageKey() {
+		return new PageKey(getChannel(), getPage(), getNextSubPage());
+	}
+	
+	public List<TouchableArea> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<TouchableArea> links) {
+		this.links.addAll(links);
+	}
+
+	private String getProperty(String key) {
+		return properties.get(key);
+	}
+
+	private int getIntProperty(String key, int defaultValue) {
+		String property = getProperty(key);
+		if (property != null) {
+			try {
+				return Integer.parseInt(property);
+			} catch (NumberFormatException e) {
+			}
+		}
+		return defaultValue;
+	}
+}

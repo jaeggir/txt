@@ -1,28 +1,19 @@
 package ch.rogerjaeggi.txt.loader;
 
-import ch.rogerjaeggi.txt.loader.cache.TxtKey;
-
-
+// TODO get rid of by adding forceRefresh to PageKey ?
 public class PageRequest {
 
-	private final TxtKey key;
-	
-	private boolean loadPageLinks;
-	
+	private final PageKey key;
+		
 	private boolean forceRefresh;
 	
-	public PageRequest(TxtKey key, boolean loadPageLinks, boolean forceRefresh) {
+	public PageRequest(PageKey key, boolean forceRefresh) {
 		this.key = key;
-		this.loadPageLinks = loadPageLinks;
 		this.forceRefresh = forceRefresh;
 	}	
 	
-	public TxtKey getKey() {
+	public PageKey getKey() {
 		return key;
-	}
-	
-	public boolean isLoadPageLinks() {
-		return loadPageLinks;
 	}
 	
 	public boolean isForceRefresh() {
@@ -46,6 +37,6 @@ public class PageRequest {
 	
 	@Override
 	public String toString() {
-		return key.toString() + ", forceRefresh=" + forceRefresh + ", loadPageLinks=" + loadPageLinks;
+		return key.toString() + ", forceRefresh=" + forceRefresh;
 	}
 }

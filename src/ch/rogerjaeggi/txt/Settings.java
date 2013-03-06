@@ -11,7 +11,6 @@ public class Settings {
 
 	private static final String PREFS = "txtPrefs";
 	private static final String KEY_CHANNEL = "key.channel";
-	private static final String KEY_CLICKABLE_LINKS = "key.clickableLinks";
 	private static final String KEY_PRELOAD_PAGES = "key.preloadPages";
 			
 	private static Method sApplyMethod = findApplyMethod();
@@ -28,17 +27,6 @@ public class Settings {
 		Editor editor = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
 		editor.putInt(KEY_CHANNEL, channel.getId());
         apply(editor);	
-	}
-
-	public static EPageLinkSetting getClickableLinkSetting(Context context) {
-		SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-		return EPageLinkSetting.getById(prefs.getInt(KEY_CLICKABLE_LINKS, EPageLinkSetting.WIFI.getId()));
-	}
-	
-	public static void setClickableLinkSetting(Context context, EPageLinkSetting setting) {
-		Editor editor = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
-		editor.putInt(KEY_CLICKABLE_LINKS, setting.getId());
-        apply(editor);
 	}
 
 	public static void storePreloadPagesSetting(Context context, String preloadPages) {

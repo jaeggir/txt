@@ -5,17 +5,19 @@ import java.util.Stack;
 
 import android.app.Application;
 import android.os.Build;
+import ch.rogerjaeggi.txt.loader.PageInfo;
+import ch.rogerjaeggi.txt.loader.PageKey;
 import ch.rogerjaeggi.txt.loader.RequestManager;
 import ch.rogerjaeggi.utils.Logging;
 
 
 public class TxtApplication extends Application {
 	
-	private int currentPage = 100;
+	private PageKey currentPage = PageKey.getDefault();
 	
-	private int currentSubPage = 0;
+	private PageInfo currentPageInfo = PageInfo.getDefault();
 	
-	private Stack<Page> history;	
+	private Stack<PageKey> history;	
 	
 	private RequestManager requestManager;
 	
@@ -27,7 +29,7 @@ public class TxtApplication extends Application {
 		enableHttpResponseCache();
 		
 		
-		history = new Stack<Page>();
+		history = new Stack<PageKey>();
 		requestManager = new RequestManager();
 		requestManager.init();
 	}
@@ -44,35 +46,34 @@ public class TxtApplication extends Application {
 		}
 	}
 	
-	public void setCurrentPage(int page) {
-		this.currentPage = page;
+	public void setCurrentPage(PageKey currentPage) {
+		this.currentPage = currentPage;
 	}
 	
-	public int getCurrentPage() {
+	public PageKey getCurrentPage() {
 		return currentPage;
 	}
-
-	public int getCurrentSubPage() {
-		return currentSubPage;
-	}
-
-	public void setCurrentSubPage(int subPage) {
-		this.currentSubPage = subPage;
-	}
 	
-	public void pushHistory(EChannel channel, int page, int subPage) {
-		Page newPage = new Page(channel, page, subPage);
+	public void setCurrentPageInfo(PageInfo currentPageInfo) {
+		this.currentPageInfo = currentPageInfo;
+	}
+
+	public PageInfo getCurrentPageInfo() {
+		return currentPageInfo;
+	}
+
+	public void pushHistory(PageKey pageKey) {
 		if (history.isEmpty()) {
-			history.push(newPage);
+			history.push(pageKey);
 		} else {
-			Page top = history.peek();
-			if (!top.equals(newPage)) {
-				history.push(newPage);
+			PageKey top = history.peek();
+			if (!top.equals(pageKey)) {
+				history.push(pageKey);
 			}
 		}
 	}
 	
-	public Page popHistory() {
+	public PageKey popHistory() {
 		if (history.isEmpty()) {
 			return null;
 		} else {

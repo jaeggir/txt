@@ -1,5 +1,7 @@
 package ch.rogerjaeggi.txt.menu;
 
+import ch.rogerjaeggi.txt.loader.PageInfo;
+
 import com.actionbarsherlock.view.MenuItem;
 
 
@@ -12,7 +14,7 @@ public class RefreshMenuUpdater implements MenuUpdater {
 	}
 	
 	@Override
-	public void update(int page) {
+	public void update(PageInfo pageInfo) {
 		item.setEnabled(true);
 	}
 	

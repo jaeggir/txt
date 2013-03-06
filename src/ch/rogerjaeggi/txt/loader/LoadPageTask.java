@@ -8,81 +8,99 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.graphics.Bitmap;
 import android.graphics.Rect;
-import ch.rogerjaeggi.txt.loader.cache.TxtCache;
-import ch.rogerjaeggi.txt.loader.cache.TxtKey;
 
 public abstract class LoadPageTask {
 
-	protected static final int IO_BUFFER_SIZE = 4 * 1024;
-
 	protected static final String TAG = "txt.pageActivity";
+
+	protected static final int IO_BUFFER_SIZE = 4 * 1024;
 	
-	private final PageRequest request;
+	private PageKey key;
 	
-	public LoadPageTask(PageRequest request) {
-		this.request = request;
+	public LoadPageTask(PageKey key) {
+		this.key = key;
 	}
 	
-	public PageRequest getPageRequest() { 
-		return request;
+	public PageKey getKey() { 
+		return key;
+	}
+	
+	protected void updateSubPage(String subPage) {
+		this.key = PageKey.fromKey(key, subPage);
+	}
+	
+	public boolean isForceRefresh() {
+		return key.isForceRefresh();
 	}
 	
 	public TxtResult execute() {
-		TxtKey key = request.getKey();
 		try {
-			TxtResult cachedResult = null;
-			if (!request.isForceRefresh()) {
-				cachedResult = TxtCache.get(key);
-			}
-			if (cachedResult != null) {
-				return cachedResult;
+			
+			if (!isForceRefresh() && TxtCache.contains(key)) {
+				return TxtCache.get(key);
 			} else {
-				TxtResult result = fetchPage();
+				
+				PageInfo pageInfo = loadPageInfo(getPageUrl());
+				Bitmap bitmap = loadImage(getImageUrl());
+				
+				TxtResult result = new TxtResult(pageInfo, bitmap);
 				TxtCache.put(key, result);
+				
 				return result;
 			}
 		} catch (FileNotFoundException e) {
-			return new TxtResult(key, e);
+			// TODO error handling
+			throw new IllegalArgumentException(e.getMessage());
 		} catch (IOException e) {
-			return new TxtResult(key, e);
+			// TODO error handling
+			throw new IllegalArgumentException(e.getMessage());
 		}
+		
 	}
 
-	protected String getImageUrl() {
-		TxtKey key = request.getKey();
+	private String getImageUrl() {
 		return TXT_BASE_URL + "dynpics/" + key.getChannel().getUrl() + "/" + key.getPage() + "-0" + key.getSubPage() + ".gif";
 	}
 	
-	protected String getPageUrl() {
-		TxtKey key = request.getKey();
+	private String getPageUrl() {
 		return TXT_BASE_URL  + key.getChannel().getUrl() + "/" + key.getPage() + "-0" + key.getSubPage() + ".html";
 	}
+
+	protected abstract PageInfo loadPageInfo(String url);
 	
-	protected abstract TxtResult fetchPage() throws FileNotFoundException, IOException;
+	protected abstract Bitmap loadImage(String url) throws FileNotFoundException, IOException;
 	
-	protected abstract List<TouchableArea> findTouchableAreas();
-	
-	protected List<TouchableArea> parsePage(BufferedReader br) throws IOException {
-		List<TouchableArea> areas = new ArrayList<TouchableArea>();
+	protected PageInfo parsePage(BufferedReader br) throws IOException {
+		PageInfo pageInfo = null;
+		List<TouchableArea> links = new ArrayList<TouchableArea>();
 	    String s;
 	    boolean start = false;
 	    while ((s = br.readLine()) != null) {
 	    	if (start && s.contains("<area")) {
 	    		TouchableArea area = getAreaFromLine(s);
 	    		if (area != null) {
-	    			areas.add(area);
+	    			links.add(area);
 	    		}
 	    	}
-	    	if (s.contains("map") && s.contains("blacktxt_links_" + (request.getKey().getSubPage() == 0 ? 0 : request.getKey().getSubPage() - 1))) {
+	    	// TODO whats that? why subpage -1 ?
+	    	if (s.contains("map") && s.contains("blacktxt_links_" + (key.getSubPage() == 0 ? 0 : key.getSubPage() - 1))) {
 	    		start = true;
 	    	}
 	    	if (start && s.contains("</map>")) {
 	    		start = false;
-	    		break;
+	    	}
+	    	if (s.trim().startsWith("Txt.txtPage = {")) {
+	    		pageInfo = PageInfo.parse(s.trim());
 	    	}
 	    }
-	    return areas;
+	    
+	    // TODO handle case if pageInfo is null
+	    if (pageInfo != null) {
+	    	pageInfo.setLinks(links);
+	    }
+	    return pageInfo;
 	}
 	
 	private TouchableArea getAreaFromLine(String s) {

@@ -3,13 +3,13 @@ package ch.rogerjaeggi.txt;
 
 public enum EChannel {
 	
-	SRF_1(0, "SRF1", "SRF 1"), 
-	SRF_ZWEI(1, "SRFzwei", "SRF zwei"), 
-	SRF_INFO(2, "SRFinfo", "SRF Info"), 
-	RTS_UN(3, "RTSUn", "RTS Un"), 
-	RTS_DEUX(4, "RTSDeux", "RTS Deux"), 
-	RSI_LA1(5, "RSILA1", "RSI LA 1"), 
-	RSI_LA2(6, "RSILA2", "RSI LA 2");
+	SRF_1(1, "SRF1", "SRF 1"), 
+	SRF_ZWEI(2, "SRFzwei", "SRF zwei"), 
+	SRF_INFO(3, "SRFinfo", "SRF Info"), 
+	RTS_UN(4, "RTSUn", "RTS Un"), 
+	RTS_DEUX(5, "RTSDeux", "RTS Deux"), 
+	RSI_LA1(6, "RSILA1", "RSI LA 1"), 
+	RSI_LA2(7, "RSILA2", "RSI LA 2");
 	
 	private static final EChannel DEFAULT = SRF_1;
 	
