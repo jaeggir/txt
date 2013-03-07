@@ -5,6 +5,10 @@ import ch.rogerjaeggi.txt.EChannel;
 
 public class PageKey {
 
+	public static final int DEFAULT_PAGE = 100;
+
+	public static final int DEFAULT_SUB_PAGE = 0;
+
 	private final EChannel channel;
 	
 	private final int page;

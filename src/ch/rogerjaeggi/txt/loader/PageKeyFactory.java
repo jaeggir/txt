@@ -1,15 +1,14 @@
 package ch.rogerjaeggi.txt.loader;
 
+import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_PAGE;
+import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_SUB_PAGE;
 import ch.rogerjaeggi.txt.EChannel;
 
 
 public class PageKeyFactory {
-
-	private static int DEFAULT_SUB_PAGE = 0;
-
-	public static PageKey getDefault() {
-		// TODO respect channel setting
-		return new PageKey(EChannel.SRF_1, 100, DEFAULT_SUB_PAGE);
+	
+	public static PageKey getDefault(EChannel channel) {
+		return new PageKey(channel, DEFAULT_PAGE, DEFAULT_SUB_PAGE);
 	}
 	
 	public static PageKey fromKey(PageKey key, String newSubPage) {

@@ -3,6 +3,11 @@ package ch.rogerjaeggi.txt.ui;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE;
 import static android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK;
+import static ch.rogerjaeggi.txt.Constants.EXTRA_PAGE;
+import static ch.rogerjaeggi.txt.Constants.EXTRA_REFRESH;
+import static ch.rogerjaeggi.txt.Constants.EXTRA_SUB_PAGE;
+import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_PAGE;
+import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_SUB_PAGE;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextSubPageKey;
@@ -34,7 +39,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import ch.rogerjaeggi.txt.Constants;
 import ch.rogerjaeggi.txt.EChannel;
 import ch.rogerjaeggi.txt.R;
 import ch.rogerjaeggi.txt.R.anim;
@@ -43,6 +47,7 @@ import ch.rogerjaeggi.txt.TxtApplication;
 import ch.rogerjaeggi.txt.loader.IRequestListener;
 import ch.rogerjaeggi.txt.loader.PageInfo;
 import ch.rogerjaeggi.txt.loader.PageKey;
+import ch.rogerjaeggi.txt.loader.PageKeyFactory;
 import ch.rogerjaeggi.txt.loader.RequestManager;
 import ch.rogerjaeggi.txt.loader.TouchableArea;
 import ch.rogerjaeggi.txt.loader.TxtCache;
@@ -85,7 +90,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		super.onStart();
 
 		getRequestManager().setListener(this);
-		requestPage(getCurrentPage());
+		requestPage(getPageKey(getCurrentPageInfo(), true));
 	}
 
 	@Override
@@ -101,13 +106,15 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			
 			EChannel channel = Settings.getChannel(this);
 			if (GO_TO_CODE == requestCode) {
-				int page = data.getIntExtra(Constants.EXTRA_PAGE, 100);
-				int subPage = data.getIntExtra(Constants.EXTRA_SUB_PAGE, 0);
-				boolean refresh = data.getBooleanExtra(Constants.EXTRA_REFRESH, false);
-				requestPage(new PageKey(channel, page, subPage, refresh));
+				if (data.hasExtra(EXTRA_REFRESH)) {
+					requestPage(getPageKey(getCurrentPageInfo(), true));
+				} else {
+					int page = data.getIntExtra(EXTRA_PAGE, DEFAULT_PAGE);
+					int subPage = data.getIntExtra(EXTRA_SUB_PAGE, DEFAULT_SUB_PAGE);
+					requestPage(new PageKey(channel, page, subPage));
+				}
 			} else if (GO_TO_SETTINGS == requestCode) {
-				// TODO replace with "default" start page
-				requestPage(new PageKey(channel, 100, 1));
+				requestPage(PageKeyFactory.getDefault(channel));
 			} else {
 				super.onActivityResult(requestCode, resultCode, data);
 			}
@@ -228,10 +235,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		getRequestManager().requestPage(key);
 	}
 
-	private PageKey getCurrentPage() {
-		return getTxtApplication().getCurrentPage();
-	}
-
 	private PageInfo getCurrentPageInfo() {
 		return getTxtApplication().getCurrentPageInfo();
 	}
@@ -314,8 +317,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 				} else {
 					findViewById(R.id.errorText).setVisibility(View.GONE);
 					image.setImageBitmap(result.getBitmap());
-					// TODO fix ?
-//					getTxtApplication().setCurrentSubPage(result.getPageInfo().getSubPage());
 				}
 				image.setOnClickListener(PageActivity.this);
 				image.setScaleType(isLandscapeMode() ? ScaleType.FIT_CENTER : ScaleType.FIT_XY);
@@ -346,8 +347,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 								}
 								TouchableArea area = result.intersects(new Rect(x - 5, y - 5, x + 5, y + 5));
 								if (area != null) {
-									// TODO find out how to get correct subPage
-									requestPage(new PageKey(result.getPageInfo().getChannel(), area.getTarget(), 0));
+									requestPage(new PageKey(result.getPageInfo().getChannel(), area.getTarget(), DEFAULT_SUB_PAGE));
 								} else {
 									handleSimpleClick();
 								}
@@ -399,7 +399,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 					}
 
 				});
-				getTxtApplication().setCurrentPage(getPageKey(result.getPageInfo(), false));
 				getTxtApplication().setCurrentPageInfo(result.getPageInfo());
 				image.setVisibility(View.VISIBLE);
 				image.invalidate();

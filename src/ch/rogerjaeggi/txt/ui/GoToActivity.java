@@ -1,5 +1,9 @@
 package ch.rogerjaeggi.txt.ui;
 
+import static ch.rogerjaeggi.txt.Constants.EXTRA_PAGE;
+import static ch.rogerjaeggi.txt.Constants.EXTRA_REFRESH;
+import static ch.rogerjaeggi.txt.Constants.EXTRA_SUB_PAGE;
+import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_SUB_PAGE;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -11,9 +15,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.TextView;
-import ch.rogerjaeggi.txt.Constants;
 import ch.rogerjaeggi.txt.R;
-import ch.rogerjaeggi.txt.TxtApplication;
 
 public class GoToActivity extends Activity {
 
@@ -53,7 +55,7 @@ public class GoToActivity extends Activity {
 			public void afterTextChanged(Editable s) {
 				if (s.length() == 3) {
 					int page = Integer.parseInt(s.toString());
-					Intent data = new Intent().putExtra(Constants.EXTRA_PAGE, page).putExtra(Constants.EXTRA_SUB_PAGE, 0).putExtra(Constants.EXTRA_REFRESH, false);
+					Intent data = new Intent().putExtra(EXTRA_PAGE, page).putExtra(EXTRA_SUB_PAGE, DEFAULT_SUB_PAGE);
 					setResult(RESULT_OK, data);
 					finish();
 				}
@@ -91,9 +93,7 @@ public class GoToActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent data = new Intent();
-				data.putExtra(Constants.EXTRA_PAGE, ((TxtApplication) getApplication()).getCurrentPage().getPage());
-				data.putExtra(Constants.EXTRA_SUB_PAGE, ((TxtApplication) getApplication()).getCurrentPage().getSubPage());
-				data.putExtra(Constants.EXTRA_REFRESH, true);
+				data.putExtra(EXTRA_REFRESH, true);
 				setResult(RESULT_OK, data);
 				finish();
 			}

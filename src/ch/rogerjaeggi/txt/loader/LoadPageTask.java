@@ -103,6 +103,7 @@ public abstract class LoadPageTask {
 	    return pageInfo;
 	}
 	
+	// TODO parse subPage (from link)
 	private TouchableArea getAreaFromLine(String s) {
 		s = s.trim();
 		int start = s.indexOf("coords=\"");
