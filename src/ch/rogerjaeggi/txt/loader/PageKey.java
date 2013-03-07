@@ -23,19 +23,6 @@ public class PageKey {
 		this.subPage = subPage;
 		this.forceRefresh = forceRefresh;
 	}
-
-	public static PageKey getDefault() {
-		return new PageKey(EChannel.SRF_1, 100, 1);
-	}
-	
-	public static PageKey fromKey(PageKey key, String newSubPage) {
-		try {
-			return new PageKey(key.getChannel(), key.getPage(), Integer.parseInt(newSubPage));
-		} catch (NumberFormatException e) {
-			// TODO handle error and think about correct location for this method
-			throw new IllegalArgumentException();
-		}
-	}
 	
 	public EChannel getChannel() {
 		return channel;

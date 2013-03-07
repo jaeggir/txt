@@ -1,5 +1,7 @@
 package ch.rogerjaeggi.txt;
 
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getDefault;
+
 import java.io.File;
 import java.util.Stack;
 
@@ -13,7 +15,7 @@ import ch.rogerjaeggi.utils.Logging;
 
 public class TxtApplication extends Application {
 	
-	private PageKey currentPage = PageKey.getDefault();
+	private PageKey currentPage = getDefault();
 	
 	private PageInfo currentPageInfo = PageInfo.getDefault();
 	

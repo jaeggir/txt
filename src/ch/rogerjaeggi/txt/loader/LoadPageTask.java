@@ -28,7 +28,7 @@ public abstract class LoadPageTask {
 	}
 	
 	protected void updateSubPage(String subPage) {
-		this.key = PageKey.fromKey(key, subPage);
+		this.key = PageKeyFactory.fromKey(key, subPage);
 	}
 	
 	public boolean isForceRefresh() {

@@ -98,28 +98,6 @@ public class PageInfo {
 	public boolean hasNextSubPage() {
 		return getNextSubPage() != -1;
 	}
-
-	public PageKey getPreviousPageKey() {
-		// TODO previousSubPage
-		return new PageKey(getChannel(), getPreviousPage(), 0);
-	}
-
-	public PageKey getNextPageKey() {
-		// TODO nextSubPage
-		return new PageKey(getChannel(), getNextPage(), 0);
-	}
-
-	public PageKey getPageKey(boolean forceRefresh) {
-		return new PageKey(getChannel(), getPage(), getSubPage(), forceRefresh);
-	}
-
-	public PageKey getPreviousSubPageKey() {
-		return new PageKey(getChannel(), getPage(), getPreviousSubPage());
-	}
-
-	public PageKey getNextSubPageKey() {
-		return new PageKey(getChannel(), getPage(), getNextSubPage());
-	}
 	
 	public List<TouchableArea> getLinks() {
 		return links;

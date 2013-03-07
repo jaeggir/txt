@@ -3,6 +3,11 @@ package ch.rogerjaeggi.txt.ui;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE;
 import static android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK;
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPageKey;
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextPageKey;
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextSubPageKey;
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPreviousPageKey;
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPreviousSubPageKey;
 
 import java.util.Calendar;
 
@@ -128,15 +133,15 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
 				item.setEnabled(false);
-				requestPage(pageInfo.getPageKey(true));
+				requestPage(getPageKey(pageInfo, true));
 				return true;
 			case R.id.menu_backwards:
 				item.setEnabled(false);
-				requestPage(pageInfo.getPreviousPageKey());
+				requestPage(getPreviousPageKey(pageInfo));
 				return true;
 			case R.id.menu_forewards:
 				item.setEnabled(false);
-				requestPage(pageInfo.getNextPageKey());
+				requestPage(getNextPageKey(pageInfo));
 				return true;
 			case R.id.menu_credits:
 				showDialog(DIALOG_CREDITS);
@@ -361,22 +366,22 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 								PageInfo pageInfo = result.getPageInfo();
 								if (e1.getX() - e2.getX() > getSwipeMinDistance() && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 									if (pageInfo.hasNextPage()) {
-										requestPage(pageInfo.getNextPageKey());
+										requestPage(getNextPageKey(pageInfo));
 										return true;
 									}
 								} else if (e2.getX() - e1.getX() > getSwipeMinDistance() && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 									if (pageInfo.hasPreviousPage()) {
-										requestPage(pageInfo.getPreviousPageKey());
+										requestPage(getPreviousPageKey(pageInfo));
 										return true;
 									}
 								} else if (e1.getY() - e2.getY() > getSwipeMinDistance() && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
 									if (pageInfo.hasPreviousSubPage()) {
-										requestPage(pageInfo.getPreviousSubPageKey());
+										requestPage(getPreviousSubPageKey(pageInfo));
 										return true;
 									}
 								} else if (e2.getY() - e1.getY() > getSwipeMinDistance() && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
 									if (pageInfo.hasNextSubPage()) {
-										requestPage(pageInfo.getNextSubPageKey());
+										requestPage(getNextSubPageKey(pageInfo));
 										return true;
 									}
 								}
@@ -394,7 +399,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 					}
 
 				});
-				getTxtApplication().setCurrentPage(result.getPageInfo().getPageKey(false));
+				getTxtApplication().setCurrentPage(getPageKey(result.getPageInfo(), false));
 				getTxtApplication().setCurrentPageInfo(result.getPageInfo());
 				image.setVisibility(View.VISIBLE);
 				image.invalidate();
@@ -403,7 +408,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 				updateMenuItems();
 				cancelRefreshIndicators();
-				getTxtApplication().pushHistory(result.getPageInfo().getPageKey(false));
+				getTxtApplication().pushHistory(getPageKey(result.getPageInfo(), false));
 			}
 
 		});
