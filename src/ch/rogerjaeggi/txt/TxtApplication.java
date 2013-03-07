@@ -13,7 +13,7 @@ import ch.rogerjaeggi.utils.Logging;
 
 public class TxtApplication extends Application {
 	
-	private PageInfo currentPageInfo = PageInfo.getDefault();
+	private PageInfo currentPageInfo;
 	
 	private Stack<PageKey> history;	
 	
@@ -26,10 +26,15 @@ public class TxtApplication extends Application {
 		Logging.init(getApplicationContext());
 		enableHttpResponseCache();
 		
+		resetPageInfo();
 		
 		history = new Stack<PageKey>();
 		requestManager = new RequestManager();
 		requestManager.init();
+	}
+
+	public void resetPageInfo() {
+		currentPageInfo = PageInfo.getDefault(Settings.getChannel(getApplicationContext()));
 	}
 	
 	private void enableHttpResponseCache() {

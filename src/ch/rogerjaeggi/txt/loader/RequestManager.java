@@ -1,7 +1,12 @@
 package ch.rogerjaeggi.txt.loader;
 
+import static ch.rogerjaeggi.txt.loader.EErrorType.CONNECTION_PROBLEM;
+import static ch.rogerjaeggi.txt.loader.EErrorType.PAGE_NOT_FOUND;
 import static ch.rogerjaeggi.txt.loader.LoadPageTaskFactory.createTask;
+import static ch.rogerjaeggi.txt.loader.PageInfo.createFromKey;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -52,8 +57,14 @@ public class RequestManager {
 							}
 						} else {
 							LoadPageTask task = createTask(key);
-							TxtResult result = task.execute();
-							notifyListener(result);
+							try {
+								TxtResult result = task.execute();
+								notifyListener(result);
+							} catch (FileNotFoundException e) {
+								notifyListener(createFromKey(key), PAGE_NOT_FOUND);
+							} catch (IOException e) {
+								notifyListener(createFromKey(key), CONNECTION_PROBLEM);
+							}
 						}
 					}
 				} catch (InterruptedException e) {
@@ -68,7 +79,15 @@ public class RequestManager {
 
 	private void notifyListener(TxtResult result) {
 		if (listener != null) {
-			listener.notifyLoaded(result);
+			listener.notifyPageLoaded(result);
+		} else {
+			Logging.d(this, "no listener found!");
+		}
+	}
+
+	private void notifyListener(PageInfo pageInfo, EErrorType errorType) {
+		if (listener != null) {
+			listener.notifyPageLoadFailed(pageInfo, errorType);
 		} else {
 			Logging.d(this, "no listener found!");
 		}

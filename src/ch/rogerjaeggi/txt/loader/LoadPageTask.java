@@ -35,29 +35,19 @@ public abstract class LoadPageTask {
 		return key.isForceRefresh();
 	}
 	
-	public TxtResult execute() {
-		try {
+	public TxtResult execute() throws FileNotFoundException, IOException {
+		if (!isForceRefresh() && TxtCache.contains(key)) {
+			return TxtCache.get(key);
+		} else {
 			
-			if (!isForceRefresh() && TxtCache.contains(key)) {
-				return TxtCache.get(key);
-			} else {
-				
-				PageInfo pageInfo = loadPageInfo(getPageUrl());
-				Bitmap bitmap = loadImage(getImageUrl());
-				
-				TxtResult result = new TxtResult(pageInfo, bitmap);
-				TxtCache.put(key, result);
-				
-				return result;
-			}
-		} catch (FileNotFoundException e) {
-			// TODO error handling
-			throw new IllegalArgumentException(e.getMessage());
-		} catch (IOException e) {
-			// TODO error handling
-			throw new IllegalArgumentException(e.getMessage());
+			PageInfo pageInfo = loadPageInfo(getPageUrl());
+			Bitmap bitmap = loadImage(getImageUrl());
+			
+			TxtResult result = new TxtResult(pageInfo, bitmap);
+			TxtCache.put(key, result);
+			
+			return result;
 		}
-		
 	}
 
 	private String getImageUrl() {

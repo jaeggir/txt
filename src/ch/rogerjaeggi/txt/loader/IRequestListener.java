@@ -3,5 +3,7 @@ package ch.rogerjaeggi.txt.loader;
 
 public interface IRequestListener {
 
-	void notifyLoaded(TxtResult result);
+	void notifyPageLoaded(TxtResult result);
+	
+	void notifyPageLoadFailed(PageInfo pageInfo, EErrorType errorType);
 }

@@ -2,6 +2,7 @@ package ch.rogerjaeggi.txt;
 
 public class Constants {
 
+	public static final int GO_TO_CODE = 77;
 
 	public static final String TXT_BASE_URL = "http://www.teletext.ch/";
 	

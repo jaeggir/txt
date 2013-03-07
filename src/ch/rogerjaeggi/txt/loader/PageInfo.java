@@ -36,8 +36,18 @@ public class PageInfo {
 		}
 	}
 	
-	public static PageInfo getDefault() {
-		String json = "Txt.txtPage = {\"Id\":\"SRF1_100_01\",\"Channel\":1,\"PageNr\":100,\"SubpageNr\":1,\"PageUrl\":\"~/SRF1/100-01.html\",\"NumberOfSubpages\":1,\"PreviousPageNr\":-1,\"NextPageNr\":101,\"PreviousSubpageNr\":-1,\"NextSubpageNr\":-1};";	
+	public static PageInfo createFromKey(PageKey key) {
+		Map<String, String> props = new HashMap<String, String>();
+	
+		props.put("Channel", Integer.toString(key.getChannel().getId()));
+		props.put("PageNr", Integer.toString(key.getPage()));
+		props.put("SubpageNr", Integer.toString(key.getSubPage()));
+		
+		return new PageInfo(props);
+	}
+	
+	public static PageInfo getDefault(EChannel channel) {
+		String json = "Txt.txtPage = {\"Id\":\"" + channel.getName() + "_100_01\",\"Channel\":" + channel.getId() + ",\"PageNr\":100,\"SubpageNr\":1,\"PageUrl\":\"~/SRF1/100-01.html\",\"NumberOfSubpages\":1,\"PreviousPageNr\":-1,\"NextPageNr\":101,\"PreviousSubpageNr\":-1,\"NextSubpageNr\":-1};";	
 		return parse(json);
 	}
 
