@@ -5,11 +5,11 @@ public enum EChannel {
 	
 	SRF_1(1, "SRF1", "SRF 1"), 
 	SRF_ZWEI(2, "SRFzwei", "SRF zwei"), 
-	SRF_INFO(3, "SRFinfo", "SRF Info"), 
-	RTS_UN(4, "RTSUn", "RTS Un"), 
-	RTS_DEUX(5, "RTSDeux", "RTS Deux"), 
-	RSI_LA1(6, "RSILA1", "RSI LA 1"), 
-	RSI_LA2(7, "RSILA2", "RSI LA 2");
+	SRF_INFO(4, "SRFinfo", "SRF Info"), 
+	RTS_UN(32, "RTSUn", "RTS Un"), 
+	RTS_DEUX(64, "RTSDeux", "RTS Deux"), 
+	RSI_LA1(512, "RSILA1", "RSI LA 1"), 
+	RSI_LA2(1024, "RSILA2", "RSI LA 2");
 	
 	private static final EChannel DEFAULT = SRF_1;
 	
