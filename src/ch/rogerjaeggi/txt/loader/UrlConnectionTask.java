@@ -64,37 +64,32 @@ public class UrlConnectionTask extends LoadPageTask {
 	}
 
 	@Override
-	protected PageInfo loadPageInfo(String urlToLoad) {
+	protected PageInfo loadPageInfo(String urlToLoad) throws IOException {
+			
+		URL url = new URL(urlToLoad);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		setCacheControl(connection);
+		
+		InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+
+		if (!url.getPath().equals(connection.getURL().getPath())) {
+			// redirect, update page info
+			String path = connection.getURL().getPath();
+			String subPage = path.substring(path.length() - 6, path.length() - 5);
+			updateSubPage(subPage);
+		}
+		
+		BufferedReader br = new BufferedReader(isr);
+
 		try {
-			
-			URL url = new URL(urlToLoad);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			setCacheControl(connection);
-			
-			InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-
-			if (!url.getPath().equals(connection.getURL().getPath())) {
-				// redirect, update page info
-				String path = connection.getURL().getPath();
-				String subPage = path.substring(path.length() - 6, path.length() - 5);
-				updateSubPage(subPage);
-			}
-			
-			BufferedReader br = new BufferedReader(isr);
-
-			try {
-				return parsePage(br);
-			} finally {
-			    try {
-			    	isr.close();
-			    } catch (IOException e) {
-			    	// ignore
-			    }
-				connection.disconnect();
-			}
-		} catch (IOException e) {
-			Logging.e(this, "IOE", e);
-			return null;
+			return parsePage(br);
+		} finally {
+		    try {
+		    	isr.close();
+		    } catch (IOException e) {
+		    	// ignore
+		    }
+			connection.disconnect();
 		}
 	}
 

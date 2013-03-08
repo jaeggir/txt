@@ -58,7 +58,7 @@ public abstract class LoadPageTask {
 		return TXT_BASE_URL  + key.getChannel().getUrl() + "/" + key.getPage() + "-0" + key.getSubPage() + ".html";
 	}
 
-	protected abstract PageInfo loadPageInfo(String url);
+	protected abstract PageInfo loadPageInfo(String url) throws IOException;
 	
 	protected abstract Bitmap loadImage(String url) throws FileNotFoundException, IOException;
 	
@@ -86,10 +86,11 @@ public abstract class LoadPageTask {
 	    	}
 	    }
 	    
-	    // TODO handle case if pageInfo is null
-	    if (pageInfo != null) {
-	    	pageInfo.setLinks(links);
+	    if (pageInfo == null) {
+	    	// TODO handle case if pageInfo is null
+	    	throw new IOException("parsing page failed. No PageInfo found.");
 	    }
+    	pageInfo.setLinks(links);
 	    return pageInfo;
 	}
 	
