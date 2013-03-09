@@ -59,6 +59,8 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class PageActivity extends SherlockActivity implements OnClickListener, IRequestListener {
 
+	private static final String KEY_DIALOG_ON_SCREEN = "dialogOnScreen";
+	
 	private static final int DIALOG_CREDITS = 1;
 	private static final int DIALOG_LOADING = 2;
 
@@ -81,7 +83,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		updateTitle();
 
 		if (savedInstanceState != null) {
-			progressDialogOnScreen = savedInstanceState.getBoolean("progress", false);
+			progressDialogOnScreen = savedInstanceState.getBoolean(KEY_DIALOG_ON_SCREEN, false);
 		}
 	}
 
@@ -92,7 +94,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		getRequestManager().setListener(this);
 		
 		if (!getRequestManager().hasRequestInProgress()) {
-			requestPage(getPageKey(getCurrentPageInfo(), true));
+			requestPage(getPageKey(getCurrentPageInfo(), false));
 		}
 	}
 
@@ -107,7 +109,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 
-		outState.putBoolean("progress", progressDialogOnScreen);
+		outState.putBoolean(KEY_DIALOG_ON_SCREEN, progressDialogOnScreen);
 	}
 
 	@Override
