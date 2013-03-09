@@ -9,6 +9,10 @@ public class PageKey {
 
 	public static final int DEFAULT_SUB_PAGE = 0;
 
+	public static final int MIN_PAGE = 100;
+	
+	public static final int MAX_PAGE = 999;
+
 	private final EChannel channel;
 	
 	private final int page;

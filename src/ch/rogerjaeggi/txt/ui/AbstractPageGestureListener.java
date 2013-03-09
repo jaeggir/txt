@@ -1,6 +1,9 @@
 package ch.rogerjaeggi.txt.ui;
 
 import static ch.rogerjaeggi.txt.Constants.GO_TO_CODE;
+import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_SUB_PAGE;
+import static ch.rogerjaeggi.txt.loader.PageKey.MAX_PAGE;
+import static ch.rogerjaeggi.txt.loader.PageKey.MIN_PAGE;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextSubPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPageKey;
@@ -10,6 +13,7 @@ import android.content.Intent;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import ch.rogerjaeggi.txt.loader.PageInfo;
+import ch.rogerjaeggi.txt.loader.PageKey;
 import ch.rogerjaeggi.utils.Logging;
 
 
@@ -40,13 +44,17 @@ public abstract class AbstractPageGestureListener extends SimpleOnGestureListene
 			if (e1.getX() - e2.getX() > swipeMinDistance && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 				if (pageInfo.hasNextPage()) {
 					pageActivity.requestPage(getNextPageKey(pageInfo));
-					return true;
+				} else if (pageInfo.getPage() < MAX_PAGE){
+					pageActivity.requestPage(new PageKey(pageInfo.getChannel(), pageInfo.getPage() + 1, DEFAULT_SUB_PAGE));
 				}
+				return true;
 			} else if (e2.getX() - e1.getX() > swipeMinDistance && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 				if (pageInfo.hasPreviousPage()) {
 					pageActivity.requestPage(getPreviousPageKey(pageInfo));
-					return true;
+				} else if (pageInfo.getPage() > MIN_PAGE){
+					pageActivity.requestPage(new PageKey(pageInfo.getChannel(), pageInfo.getPage() - 1, DEFAULT_SUB_PAGE));
 				}
+				return true;
 			} else if (e1.getY() - e2.getY() > swipeMinDistance && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
 				if (pageInfo.hasPreviousSubPage()) {
 					pageActivity.requestPage(getPreviousSubPageKey(pageInfo));
