@@ -64,8 +64,10 @@ public class RequestManager {
 								TxtResult result = task.execute();
 								notifyListener(result);
 							} catch (FileNotFoundException e) {
+								Logging.d(this, "FileNotFound", e);
 								notifyListener(createFromKey(key), PAGE_NOT_FOUND);
 							} catch (IOException e) {
+								Logging.d(this, "IOE", e);
 								notifyListener(createFromKey(key), CONNECTION_PROBLEM);
 							} finally {
 								requestInProgress = false;
