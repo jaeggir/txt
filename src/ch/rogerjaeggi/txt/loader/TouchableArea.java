@@ -21,6 +21,12 @@ public class TouchableArea {
 		return Rect.intersects(area, r);
 	}
 	
+	public Rect intersect(Rect r) {
+		Rect result = new Rect(area);
+		result.intersect(r);
+		return result;
+	}
+	
 	public int getPage() {
 		return page;
 	}

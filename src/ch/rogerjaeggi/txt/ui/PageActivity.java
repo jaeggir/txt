@@ -241,11 +241,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	public void requestPage(PageKey key) {
 		startRefreshIndicators();
 
-		if (key.isForceRefresh()) {
-			TxtCache.remove(key);
-		}
-		
-		if (!progressDialogOnScreen && !TxtCache.contains(key)) {
+		if (!progressDialogOnScreen && (key.isForceRefresh() || !TxtCache.contains(key))) {
 			// only show dialog if we have to fetch the page from SwissTXT
 			showDialog(DIALOG_LOADING);
 		}
@@ -352,7 +348,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 							x = (int) (event.getX() / scaleX);
 							y = (int) (event.getY() / scaleY);
 						}
-						TouchableArea area = result.intersects(new Rect(x - 5, y - 5, x + 5, y + 5));
+						TouchableArea area = result.intersects(new Rect(x - 2, y - 2, x + 2, y + 2));
 						if (area != null) {
 							requestPage(new PageKey(result.getPageInfo().getChannel(), area.getPage(), area.getSubPage()));
 						} else {

@@ -110,7 +110,7 @@ public abstract class LoadPageTask {
 		if (matcher.find()) {
 			int page = parseInt(matcher.group(6));
 			int subPage = parseInt(matcher.group(1));
-			Rect area = new Rect(parseInt(matcher.group(2)), parseInt(matcher.group(3)), parseInt(matcher.group(4)), parseInt(matcher.group(5)));
+			Rect area = new Rect(parseInt(matcher.group(2)) - 2, parseInt(matcher.group(3)) - 2, parseInt(matcher.group(4)) + 2, parseInt(matcher.group(5)) + 2);
 			return new TouchableArea(area, page, subPage);
 		} else {
 			return null;
