@@ -17,7 +17,13 @@ public class TxtCache {
 	
 	public static TxtResult get(PageKey key) {
 		TxtResult result = mMemoryCache.get(key);
-		if (result == null || result.isValid(MAX_AGE)) {
+		if (result == null) {
+			if (key.getSubPage() == 0) {
+				// some pages start with sub page 1, not 0
+				return get(PageKeyFactory.fromKey(key, "1"));
+			}
+			return null;
+		} else if (result.isValid(MAX_AGE)) {
 			return result;
 		} else {
 			mMemoryCache.remove(key);
@@ -28,6 +34,10 @@ public class TxtCache {
 	public static boolean contains(PageKey key) {
 		TxtResult result = mMemoryCache.get(key);
 		if (result == null) {
+			if (key.getSubPage() == 0) {
+				// some pages start with sub page 1, not 0
+				return contains(PageKeyFactory.fromKey(key, "1"));
+			}
 			return false;
 		} else if (result.isValid(MAX_AGE)) {
 			return true;
