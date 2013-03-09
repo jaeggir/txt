@@ -7,19 +7,26 @@ public class TouchableArea {
 
 	private final Rect area;
 
-	private final int target;
+	private final int page;
 	
-	public TouchableArea(Rect area, int target) {
+	private final int subPage;
+	
+	public TouchableArea(Rect area, int page, int subPage) {
 		this.area = area;
-		this.target = target;
+		this.page = page;
+		this.subPage = subPage;
 	}
 	
 	public boolean intersects(Rect r) {
 		return Rect.intersects(area, r);
 	}
 	
-	public int getTarget() {
-		return target;
+	public int getPage() {
+		return page;
+	}
+	
+	public int getSubPage() {
+		return subPage;
 	}
 
 }

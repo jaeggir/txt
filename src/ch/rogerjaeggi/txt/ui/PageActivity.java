@@ -350,7 +350,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 						}
 						TouchableArea area = result.intersects(new Rect(x - 5, y - 5, x + 5, y + 5));
 						if (area != null) {
-							requestPage(new PageKey(result.getPageInfo().getChannel(), area.getTarget(), DEFAULT_SUB_PAGE));
+							requestPage(new PageKey(result.getPageInfo().getChannel(), area.getPage(), area.getSubPage()));
 						} else {
 							handleSimpleClick();
 						}

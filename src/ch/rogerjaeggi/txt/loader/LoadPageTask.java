@@ -1,18 +1,24 @@
 package ch.rogerjaeggi.txt.loader;
 
 import static ch.rogerjaeggi.txt.Constants.TXT_BASE_URL;
+import static java.lang.Integer.parseInt;
+import static java.util.regex.Pattern.compile;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 
 public abstract class LoadPageTask {
-
+	
+	private static Pattern pattern = compile("<area href=\"/\\w+/\\d{3}-(\\d{2}).html\" shape=\"rect\" coords=\"(\\d+),(\\d+),(\\d+),(\\d+)\" alt=\"(\\d{3})\" />");
+	
 	protected static final String TAG = "txt.pageActivity";
 
 	protected static final int IO_BUFFER_SIZE = 4 * 1024;
@@ -74,7 +80,7 @@ public abstract class LoadPageTask {
 	    boolean start = false;
 	    while ((s = br.readLine()) != null) {
 	    	if (start && s.contains("<area")) {
-	    		TouchableArea area = getAreaFromLine(s);
+	    		TouchableArea area = getAreaFromLine(s.trim());
 	    		if (area != null) {
 	    			links.add(area);
 	    		}
@@ -92,40 +98,23 @@ public abstract class LoadPageTask {
 	    }
 	    
 	    if (pageInfo == null) {
-	    	// TODO handle case if pageInfo is null and remove system out.
+	    	// TODO handle case if pageInfo is null
 	    	throw new IOException("parsing page failed. No PageInfo found.");
 	    }
     	pageInfo.setLinks(links);
 	    return pageInfo;
 	}
 	
-	// TODO parse subPage (from link)
-	private TouchableArea getAreaFromLine(String s) {
-		s = s.trim();
-		int start = s.indexOf("coords=\"");
-		if (start != -1) {
-			s = s.substring(start + "coords=\"".length());
-			int end = s.indexOf("\"");
-			String coords = s.substring(0, end);
-			if (coords.split(",").length == 4) {
-				String[] values = coords.split(",");
-				start = s.indexOf("alt=\"");
-				if (start != -1) {
-					s = s.substring(start + "alt=\"".length());
-					end = s.indexOf("\"");
-					String target = s.substring(0, end);
-					try {
-						Rect area = new Rect(Integer.parseInt(values[0]), Integer.parseInt(values[1]), Integer.parseInt(values[2]), Integer.parseInt(values[3]));
-						int pageTarget = Integer.parseInt(target);
-						return new TouchableArea(area, pageTarget);
-					} catch (NumberFormatException e) {
-						// ignore
-					}
-				}
-				
-			}
+	private TouchableArea getAreaFromLine(String line) {
+		Matcher matcher = pattern.matcher(line);
+		if (matcher.find()) {
+			int page = parseInt(matcher.group(6));
+			int subPage = parseInt(matcher.group(1));
+			Rect area = new Rect(parseInt(matcher.group(2)), parseInt(matcher.group(3)), parseInt(matcher.group(4)), parseInt(matcher.group(5)));
+			return new TouchableArea(area, page, subPage);
+		} else {
+			return null;
 		}
-		return null;
 	}
 	
 }
