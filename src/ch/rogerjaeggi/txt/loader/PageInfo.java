@@ -1,9 +1,9 @@
 package ch.rogerjaeggi.txt.loader;
 
-import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_PAGE;
-import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_SUB_PAGE;
-import static ch.rogerjaeggi.txt.loader.PageKey.MAX_PAGE;
-import static ch.rogerjaeggi.txt.loader.PageKey.MIN_PAGE;
+import static ch.rogerjaeggi.txt.Constants.DEFAULT_PAGE;
+import static ch.rogerjaeggi.txt.Constants.DEFAULT_SUB_PAGE;
+import static ch.rogerjaeggi.txt.Constants.MAX_PAGE;
+import static ch.rogerjaeggi.txt.Constants.MIN_PAGE;
 
 import java.util.HashMap;
 import java.util.LinkedList;

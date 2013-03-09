@@ -3,7 +3,7 @@ package ch.rogerjaeggi.txt.ui;
 import static ch.rogerjaeggi.txt.Constants.EXTRA_PAGE;
 import static ch.rogerjaeggi.txt.Constants.EXTRA_REFRESH;
 import static ch.rogerjaeggi.txt.Constants.EXTRA_SUB_PAGE;
-import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_SUB_PAGE;
+import static ch.rogerjaeggi.txt.Constants.DEFAULT_SUB_PAGE;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Rect;

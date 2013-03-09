@@ -4,9 +4,8 @@ import android.support.v4.util.LruCache;
 
 
 public class TxtCache {
-	
-	private static final long MAX_AGE = 5 * 60 * 1000l;
 
+	private static final long CACHE_MAX_AGE = 5 * 60 * 1000l;
 	private static final int CACHE_SIZE = 20;
 	
 	private static LruCache<PageKey, TxtResult> mMemoryCache = new LruCache<PageKey, TxtResult>(CACHE_SIZE);
@@ -23,7 +22,7 @@ public class TxtCache {
 				return get(PageKeyFactory.fromKey(key, "1"));
 			}
 			return null;
-		} else if (result.isValid(MAX_AGE)) {
+		} else if (result.isValid(CACHE_MAX_AGE)) {
 			return result;
 		} else {
 			mMemoryCache.remove(key);
@@ -39,7 +38,7 @@ public class TxtCache {
 				return contains(PageKeyFactory.fromKey(key, "1"));
 			}
 			return false;
-		} else if (result.isValid(MAX_AGE)) {
+		} else if (result.isValid(CACHE_MAX_AGE)) {
 			return true;
 		} else {
 			mMemoryCache.remove(key);

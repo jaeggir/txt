@@ -1,7 +1,7 @@
 package ch.rogerjaeggi.txt.loader;
 
-import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_PAGE;
-import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_SUB_PAGE;
+import static ch.rogerjaeggi.txt.Constants.DEFAULT_PAGE;
+import static ch.rogerjaeggi.txt.Constants.DEFAULT_SUB_PAGE;
 import static java.lang.Integer.parseInt;
 import ch.rogerjaeggi.txt.EChannel;
 
