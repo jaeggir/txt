@@ -41,12 +41,16 @@ public abstract class LoadPageTask {
 		} else {
 			
 			PageInfo pageInfo = loadPageInfo(getPageUrl());
-			Bitmap bitmap = loadImage(getImageUrl());
-			
-			TxtResult result = new TxtResult(pageInfo, bitmap);
-			TxtCache.put(key, result);
-			
-			return result;
+			TxtResult result = null;
+			if (TxtCache.contains(key)) {
+				// TODO loadPageInfo can update the key (redirects). Clean-up this mess.
+				return TxtCache.get(key);
+			} else  {
+				Bitmap bitmap = loadImage(getImageUrl());
+				result = new TxtResult(pageInfo, bitmap);
+				TxtCache.put(key, result);				
+				return result;
+			}
 		}
 	}
 
