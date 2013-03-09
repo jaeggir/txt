@@ -377,6 +377,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 			@Override
 			public void run() {
+				// TODO show toast if we are already showing the same page and only the refresh failed.
 				ImageView image = (ImageView) findViewById(R.id.page);
 				image.setScaleType(isLandscapeMode() ? ScaleType.FIT_CENTER : ScaleType.FIT_XY);
 				image.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.page_does_not_exists));
@@ -396,7 +397,6 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 				errorText.setVisibility(View.VISIBLE);
 				switch (errorType) {
 					case CONNECTION_PROBLEM:
-						// TODO show toast if we are already showing the same page and only the refresh failed.
 						errorText.setText(R.string.errorConnectionProblem);
 						break;
 					case PAGE_NOT_FOUND:
