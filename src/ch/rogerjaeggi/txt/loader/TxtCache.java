@@ -46,5 +46,13 @@ public class TxtCache {
 			return false;
 		}
 	}
+
+	public static void remove(PageKey key) {
+		mMemoryCache.remove(key);
+		if (key.getSubPage() == 0) {
+			mMemoryCache.remove(PageKeyFactory.fromKey(key, "1"));
+		}
+		
+	}
 	
 }
