@@ -19,6 +19,8 @@ public class RequestManager {
 	private final Queue<PageKey> requests;
 
 	private IRequestListener listener;
+	
+	private volatile boolean requestInProgress;
 
 	public RequestManager() {
 		this.requests = new LinkedBlockingQueue<PageKey>();
@@ -56,6 +58,7 @@ public class RequestManager {
 								RequestManager.this.wait();
 							}
 						} else {
+							requestInProgress = true;
 							LoadPageTask task = createTask(key);
 							try {
 								TxtResult result = task.execute();
@@ -64,6 +67,8 @@ public class RequestManager {
 								notifyListener(createFromKey(key), PAGE_NOT_FOUND);
 							} catch (IOException e) {
 								notifyListener(createFromKey(key), CONNECTION_PROBLEM);
+							} finally {
+								requestInProgress = false;
 							}
 						}
 					}
@@ -91,6 +96,10 @@ public class RequestManager {
 		} else {
 			Logging.d(this, "no listener found!");
 		}
+	}
+
+	public boolean hasRequestInProgress() {
+		return requestInProgress;
 	}
 
 }

@@ -69,6 +69,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	private PrevMenuUpdater prevMenuUpdater;
 	private NextMenuUpdater nextMenuUpdater;
 	private RefreshMenuUpdater refreshMenuUpdater;
+	
+	private boolean progressDialogOnScreen;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,10 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		setContentView(R.layout.activity_page);
 
 		updateTitle();
+
+		if (savedInstanceState != null) {
+			progressDialogOnScreen = savedInstanceState.getBoolean("progress", false);
+		}
 	}
 
 	@Override
@@ -84,7 +90,10 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		super.onStart();
 
 		getRequestManager().setListener(this);
-		requestPage(getPageKey(getCurrentPageInfo(), true));
+		
+		if (!getRequestManager().hasRequestInProgress()) {
+			requestPage(getPageKey(getCurrentPageInfo(), true));
+		}
 	}
 
 	@Override
@@ -92,6 +101,13 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		getRequestManager().removeListener();
 
 		super.onStop();
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		outState.putBoolean("progress", progressDialogOnScreen);
 	}
 
 	@Override
@@ -163,6 +179,9 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			case DIALOG_CREDITS:
 				((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 				break;
+			case DIALOG_LOADING:
+				progressDialogOnScreen = true;
+				break;
 			default:
 				super.onPrepareDialog(id, dialog);
 		}
@@ -222,7 +241,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	public void requestPage(PageKey key) {
 		startRefreshIndicators();
 
-		if (key.isForceRefresh() || !TxtCache.contains(key)) {
+		if (!progressDialogOnScreen && (key.isForceRefresh() || !TxtCache.contains(key))) {
 			// only show dialog if we have to fetch the page from SwissTXT
 			showDialog(DIALOG_LOADING);
 		}
@@ -253,6 +272,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		}
 
 		removeDialog(DIALOG_LOADING);
+		progressDialogOnScreen = false;
 	}
 
 	private void startRefreshIndicators() {
