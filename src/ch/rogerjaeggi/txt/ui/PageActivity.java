@@ -241,7 +241,11 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	public void requestPage(PageKey key) {
 		startRefreshIndicators();
 
-		if (!progressDialogOnScreen && (key.isForceRefresh() || !TxtCache.contains(key))) {
+		if (key.isForceRefresh()) {
+			TxtCache.remove(key);
+		}
+		
+		if (!progressDialogOnScreen && !TxtCache.contains(key)) {
 			// only show dialog if we have to fetch the page from SwissTXT
 			showDialog(DIALOG_LOADING);
 		}
