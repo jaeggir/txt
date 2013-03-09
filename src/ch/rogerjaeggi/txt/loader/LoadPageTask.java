@@ -67,11 +67,15 @@ public abstract class LoadPageTask {
 	protected abstract Bitmap loadImage(String url) throws FileNotFoundException, IOException;
 	
 	protected PageInfo parsePage(BufferedReader br) throws IOException {
+		
+		String page = "";
+		
 		PageInfo pageInfo = null;
 		List<TouchableArea> links = new ArrayList<TouchableArea>();
 	    String s;
 	    boolean start = false;
 	    while ((s = br.readLine()) != null) {
+	    	page = page + "\n" + s;
 	    	if (start && s.contains("<area")) {
 	    		TouchableArea area = getAreaFromLine(s);
 	    		if (area != null) {
@@ -91,7 +95,8 @@ public abstract class LoadPageTask {
 	    }
 	    
 	    if (pageInfo == null) {
-	    	// TODO handle case if pageInfo is null
+	    	// TODO handle case if pageInfo is null and remove system out.
+	    	System.out.println(page);
 	    	throw new IOException("parsing page failed. No PageInfo found.");
 	    }
     	pageInfo.setLinks(links);
