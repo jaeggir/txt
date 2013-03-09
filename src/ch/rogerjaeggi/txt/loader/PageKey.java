@@ -11,7 +11,7 @@ public class PageKey {
 
 	public static final int MIN_PAGE = 100;
 	
-	public static final int MAX_PAGE = 999;
+	public static final int MAX_PAGE = 899;
 
 	private final EChannel channel;
 	

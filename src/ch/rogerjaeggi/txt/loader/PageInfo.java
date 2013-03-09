@@ -1,5 +1,10 @@
 package ch.rogerjaeggi.txt.loader;
 
+import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_PAGE;
+import static ch.rogerjaeggi.txt.loader.PageKey.DEFAULT_SUB_PAGE;
+import static ch.rogerjaeggi.txt.loader.PageKey.MAX_PAGE;
+import static ch.rogerjaeggi.txt.loader.PageKey.MIN_PAGE;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,19 +62,29 @@ public class PageInfo {
 	}
 
 	public int getPage() {
-		return getIntProperty("PageNr", 100);
+		return getIntProperty("PageNr", DEFAULT_PAGE);
 	}
 
 	public int getSubPage() {
-		return getIntProperty("SubpageNr", 0);
+		return getIntProperty("SubpageNr", DEFAULT_SUB_PAGE);
 	}
 
 	public int getPreviousPage() {
-		return getIntProperty("PreviousPageNr", 100);
+		int page = getIntProperty("PreviousPageNr", DEFAULT_PAGE);
+		if (page == -1) {
+			return getPage() -1;
+		} else {
+			return page;
+		}
 	}
 
 	public int getNextPage() {
-		return getIntProperty("NextPageNr", 100);
+		int page = getIntProperty("NextPageNr", DEFAULT_PAGE);
+		if (page == -1) {
+			return getPage() + 1;
+		} else {
+			return page;
+		}
 	}
 
 	public int getPreviousSubPage() {
@@ -86,11 +101,11 @@ public class PageInfo {
 	}
 
 	public boolean hasPreviousPage() {
-		return getPreviousPage() != -1;
+		return getPage() > MIN_PAGE;
 	}
 	
 	public boolean hasNextPage() {
-		return getNextPage() != -1;
+		return getPage() < MAX_PAGE;
 	}
 	
 	public boolean hasPreviousSubPage() {
