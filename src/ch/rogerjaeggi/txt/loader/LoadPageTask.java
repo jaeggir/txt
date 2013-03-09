@@ -85,7 +85,6 @@ public abstract class LoadPageTask {
 	    			links.add(area);
 	    		}
 	    	}
-	    	// TODO whats that? why subpage -1 ?
 	    	if (s.contains("map") && s.contains("blacktxt_links_" + (key.getSubPage() == 0 ? 0 : key.getSubPage() - 1))) {
 	    		start = true;
 	    	}
