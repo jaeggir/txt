@@ -56,14 +56,6 @@ public class PageInfo {
 		this.links = new LinkedList<TouchableArea>();
 	}
 
-	public String getPageUrl() {
-		String pageUrl = getProperty("PageUrl");
-		if (pageUrl.startsWith("~")) {
-			pageUrl = pageUrl.substring(1);
-		}
-		return pageUrl;
-	}
-
 	public int getPage() {
 		return getIntProperty("PageNr", 100);
 	}
