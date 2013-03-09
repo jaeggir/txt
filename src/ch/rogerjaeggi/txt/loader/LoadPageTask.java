@@ -2,6 +2,7 @@ package ch.rogerjaeggi.txt.loader;
 
 import static ch.rogerjaeggi.txt.Constants.TXT_BASE_URL;
 import static java.lang.Integer.parseInt;
+import static java.lang.Math.min;
 import static java.util.regex.Pattern.compile;
 
 import java.io.BufferedReader;
@@ -85,7 +86,7 @@ public abstract class LoadPageTask {
 	    			links.add(area);
 	    		}
 	    	}
-	    	if (s.contains("map") && s.contains("blacktxt_links_" + (key.getSubPage() == 0 ? 0 : key.getSubPage() - 1))) {
+	    	if (s.contains("map") && s.contains("blacktxt_links_" + min(0, key.getSubPage() - 1))) {
 	    		start = true;
 	    	}
 	    	if (start && s.contains("</map>")) {
