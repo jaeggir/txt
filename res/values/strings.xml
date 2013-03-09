@@ -13,7 +13,7 @@
     <string name="credits_programming">Programming</string>
 	<string name="credits_data">Data</string>
 	<string name="errorPageNotFound">Page %d does not exist.</string>
-	<string name="errorConnectionProblem">Connection problem occurred.\n\nYou may try again later.</string>
+	<string name="errorConnectionProblem">Connection problem occurred.\n\nYou may try again.</string>
 	<string name="errorOther">An error occurred.\n\nYou may try again.</string>
 	<string name="prefsChannelDialogTitle">Choose your channel</string>
 	<string name="prefsChannelTitle">Channel</string>
