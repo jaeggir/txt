@@ -332,7 +332,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 				image.setOnTouchListener(new PageTouchListener(PageActivity.this, new AbstractPageGestureListener(PageActivity.this, result.getPageInfo(), getSwipeMinDistance()) {
 
 					@Override
-					public boolean onSingleTapUp(MotionEvent event) {
+					public boolean onSingleTapConfirmed(MotionEvent event) {
 						int x = 0;
 						int y = 0;
 						if (isLandscapeMode()) {
@@ -384,7 +384,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 				image.setOnTouchListener(new PageTouchListener(PageActivity.this, new AbstractPageGestureListener(PageActivity.this, pageInfo, getSwipeMinDistance()) {
 
 					@Override
-					public boolean onSingleTapUp(MotionEvent event) {
+					public boolean onSingleTapConfirmed(MotionEvent event) {
 						handleSimpleClick();
 						return true;
 					}

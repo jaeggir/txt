@@ -3,6 +3,7 @@ package ch.rogerjaeggi.txt.ui;
 import static ch.rogerjaeggi.txt.Constants.GO_TO_CODE;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextSubPageKey;
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPreviousPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPreviousSubPageKey;
 import android.content.Intent;
@@ -62,4 +63,10 @@ public abstract class AbstractPageGestureListener extends SimpleOnGestureListene
 		}
 		return false;
 	}
+
+    @Override
+	public boolean onDoubleTap(MotionEvent event) {
+    	pageActivity.requestPage(getPageKey(pageInfo, true));
+		return true;
+    }
 }
