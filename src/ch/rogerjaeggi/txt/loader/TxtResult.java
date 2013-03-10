@@ -9,7 +9,6 @@ import java.util.List;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import ch.rogerjaeggi.utils.Logging;
 
 
 public class TxtResult {
@@ -65,12 +64,10 @@ public class TxtResult {
 
 	public boolean isValid(long maxAge) {
 		if (bitmap == null) {
-			Logging.d(this, "isValid(): bitmap is null, returning true");
 			return true;
 		} else {
 			boolean expired = (timestamp + maxAge) < System.currentTimeMillis();
 			boolean result = !bitmap.isRecycled() && !expired;
-			Logging.d(this, "isValid(): isRecycled=" + bitmap.isRecycled() + ", expired=" + expired + ", returning " + result);
 			return result;
 		}
 	}
