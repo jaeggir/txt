@@ -7,6 +7,8 @@ import static ch.rogerjaeggi.txt.loader.LoadPageTaskFactory.createTask;
 import static ch.rogerjaeggi.txt.loader.PageInfo.createFromKey;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -65,10 +67,14 @@ public class RequestManager {
 								notifyListener(result);
 							} catch (PageNotFoundException e) {
 								notifyListener(e.getPageInfo(), PAGE_NOT_FOUND);
-							} catch (IOException e) {
-								notifyListener(createFromKey(key), CONNECTION_PROBLEM);
+							} catch (MalformedURLException e) {
+								notifyListener(createFromKey(key), OTHER_PROBLEM);
+							} catch (URISyntaxException e) {
+								notifyListener(createFromKey(key), OTHER_PROBLEM);
 							} catch (CannotParseImageException e) {
 								notifyListener(createFromKey(key), OTHER_PROBLEM);
+							} catch (IOException e) {
+								notifyListener(createFromKey(key), CONNECTION_PROBLEM);
 							} finally {
 								requestInProgress = false;
 							}

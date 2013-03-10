@@ -1,7 +1,9 @@
 package ch.rogerjaeggi.txt.loader;
 
+import java.io.IOException;
 
-public class RedirectException extends Exception {
+
+public class RedirectException extends IOException {
 
 	private final PageKey pageKey;
 	
