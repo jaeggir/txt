@@ -417,17 +417,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 				TextView errorText = (TextView) findViewById(R.id.errorText);
 				errorText.setVisibility(View.VISIBLE);
-				switch (errorType) {
-					case CONNECTION_PROBLEM:
-						errorText.setText(R.string.errorConnectionProblem);
-						break;
-					case PAGE_NOT_FOUND:
-						errorText.setText(String.format(getString(R.string.errorPageNotFound), pageInfo.getPage()));
-						break;
-					case OTHER_PROBLEM:
-						errorText.setText(getString(R.string.errorOther));
-						break;
-				}
+				errorText.setText(errorType.getTextResource());
 				
 				getTxtApplication().setCurrentPageInfo(pageInfo);
 				updateTitle();
