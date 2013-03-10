@@ -35,10 +35,6 @@ public abstract class LoadPageTask {
 		return key;
 	}
 
-	protected void updateSubPage(String subPage) {
-		this.key = PageKeyFactory.fromKey(key, subPage);
-	}
-
 	public boolean isForceRefresh() {
 		return key.isForceRefresh();
 	}
@@ -47,21 +43,19 @@ public abstract class LoadPageTask {
 		if (!isForceRefresh() && TxtCache.contains(key)) {
 			return TxtCache.get(key);
 		} else {
-
-			PageInfo pageInfo = loadPageInfo(getPageUrl());
-			TxtResult result = null;
-			if (TxtCache.contains(key)) {
-				// TODO loadPageInfo can update the key (redirects). Clean-up this mess.
-				return TxtCache.get(key);
-			} else {
+			try {
+				PageInfo pageInfo = loadPageInfo(getPageUrl());
 				try {
 					Bitmap bitmap = loadImage(getImageUrl());
-					result = new TxtResult(pageInfo, bitmap);
+					TxtResult result = new TxtResult(pageInfo, bitmap);
 					TxtCache.put(key, result);
 					return result;
 				} catch (FileNotFoundException e) {
 					throw new PageNotFoundException(pageInfo);
 				}
+			} catch (RedirectException e) {
+				this.key = e.getPageKey();
+				return execute();
 			}
 		}
 	}
@@ -74,7 +68,7 @@ public abstract class LoadPageTask {
 		return TXT_BASE_URL + key.getChannel().getUrl() + "/" + key.getPage() + "-0" + key.getSubPage() + ".html";
 	}
 
-	protected abstract PageInfo loadPageInfo(String url) throws IOException;
+	protected abstract PageInfo loadPageInfo(String url) throws IOException, RedirectException;
 
 	protected abstract Bitmap loadImage(String url) throws FileNotFoundException, IOException;
 
