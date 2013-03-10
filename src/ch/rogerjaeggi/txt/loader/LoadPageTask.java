@@ -1,6 +1,7 @@
 package ch.rogerjaeggi.txt.loader;
 
 import static ch.rogerjaeggi.txt.Constants.TXT_BASE_URL;
+import static ch.rogerjaeggi.txt.loader.PageInfo.createFromKey;
 import static java.lang.Integer.parseInt;
 import static java.lang.Math.max;
 import static java.util.regex.Pattern.compile;
@@ -18,7 +19,7 @@ import android.graphics.Rect;
 
 public abstract class LoadPageTask {
 
-	private static Pattern pattern = compile("<area href=\"/\\w+/\\d{3}-(\\d{2}).html\" shape=\"rect\" coords=\"(\\d+),(\\d+),(\\d+),(\\d+)\" alt=\"(\\d{3})\" />");
+	private static Pattern pattern = compile("<area href=\"/\\w+/\\d{3}-(\\d{2}).html\".*coords=\"(\\d+),(\\d+),(\\d+),(\\d+)\" alt=\"(\\d{3})\" />");
 
 	protected static final String TAG = "txt.pageActivity";
 
@@ -79,31 +80,26 @@ public abstract class LoadPageTask {
 
 	protected PageInfo parsePage(BufferedReader br) throws IOException {
 
-		PageInfo pageInfo = null;
+		PageInfo pageInfo = createFromKey(key);
 		List<TouchableArea> links = new ArrayList<TouchableArea>();
-		String s;
+		String line = null;
 		boolean start = false;
-		while ((s = br.readLine()) != null) {
-			if (start && s.contains("<area")) {
-				TouchableArea area = getAreaFromLine(s.trim());
+		while ((line = br.readLine()) != null) {
+			if (start && line.contains("<area")) {
+				TouchableArea area = getAreaFromLine(line);
 				if (area != null) {
 					links.add(area);
 				}
 			}
-			if (s.contains("map") && s.contains("blacktxt_links_" + max(0, key.getSubPage() - 1))) {
+			if (line.contains("map") && line.contains("blacktxt_links_" + max(0, key.getSubPage() - 1))) {
 				start = true;
 			}
-			if (start && s.contains("</map>")) {
+			if (start && line.contains("</map>")) {
 				start = false;
 			}
-			if (s.trim().startsWith("Txt.txtPage = {")) {
-				pageInfo = PageInfo.parse(s.trim());
+			if (PageInfo.matches(line)) {
+				pageInfo = PageInfo.parse(line.trim());
 			}
-		}
-
-		if (pageInfo == null) {
-			// TODO handle case if pageInfo is null
-			throw new IOException("parsing page failed. No PageInfo found.");
 		}
 		pageInfo.setLinks(links);
 		return pageInfo;

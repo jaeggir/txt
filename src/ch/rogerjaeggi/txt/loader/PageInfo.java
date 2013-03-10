@@ -4,116 +4,131 @@ import static ch.rogerjaeggi.txt.Constants.DEFAULT_PAGE;
 import static ch.rogerjaeggi.txt.Constants.DEFAULT_SUB_PAGE;
 import static ch.rogerjaeggi.txt.Constants.MAX_PAGE;
 import static ch.rogerjaeggi.txt.Constants.MIN_PAGE;
+import static java.lang.Integer.parseInt;
+import static java.util.regex.Pattern.compile;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ch.rogerjaeggi.txt.EChannel;
 
 
 public class PageInfo {
 
-	private final Map<String, String> properties;
+	private static final Pattern pattern = compile(".*\"Channel\":(-?[0-9]{1,3}).*\"PageNr\":(\\d{3}).*\"SubpageNr\":(\\d{1}).*\"PreviousPageNr\":(-?[0-9]{1,3}).*\"NextPageNr\":(-?[0-9]{1,3}).*\"PreviousSubpageNr\":(-?[0-9]{1,3}).*\"NextSubpageNr\":(-?[0-9]{1,3}).*");
+	
+	private final EChannel channel;
+	
+	private final int page;
+	
+	private final int subPage;
+	
+	private final int previousPage;
+	
+	private final int nextPage;
+	
+	private final int previousSubPage;
+	
+	private final int nextSubPage;
 	
 	private final List<TouchableArea> links;
 
+	private PageInfo(EChannel channel, int page, int subPage, int previousPage, int nextPage, int previousSubPage, int nextSubPage) {
+		this.channel = channel;
+		this.page = page;
+		this.subPage = subPage;
+		this.previousPage = previousPage;
+		this.nextPage = nextPage;
+		this.previousSubPage = previousSubPage;
+		this.nextSubPage = nextSubPage;
+		
+		this.links = new LinkedList<TouchableArea>();
+	}
+	
 	public static PageInfo parse(String json) {
-		int startIndex = json.indexOf("{");
-		int endIndex = json.lastIndexOf("}");
-
-		Map<String, String> props = new HashMap<String, String>();
-
-		if (startIndex != -1 && endIndex != -1) {
-			json = json.substring(startIndex + 1, endIndex);
-			json = json.replace("\"", "");
-			String[] values = json.split(",");
-			for (String value : values) {
-				String[] tmp = value.split(":");
-				if (tmp.length == 2) {
-					props.put(tmp[0], tmp[1]);
-				}
-			}
-			return new PageInfo(props);
+		Matcher matcher = pattern.matcher(json);
+		if (matcher.find()) {
+			EChannel channel = EChannel.getById(parseInt(matcher.group(1)));
+			int page = parseInt(matcher.group(2));
+			int subPage = parseInt(matcher.group(3));
+			int previousPage = parseInt(matcher.group(4));
+			int nextPage = parseInt(matcher.group(5));
+			int previousSubPage = parseInt(matcher.group(6));
+			int nextSubPage = parseInt(matcher.group(7));
+			return new PageInfo(channel, page, subPage, previousPage, nextPage, previousSubPage, nextSubPage);
 		} else {
-			throw new IllegalArgumentException("Cannot parse '" + json + "'");
+			throw new IllegalArgumentException("Cannot parse page. Did you call matches() before?");
 		}
 	}
 	
 	public static PageInfo createFromKey(PageKey key) {
-		Map<String, String> props = new HashMap<String, String>();
+		return new PageInfo(key.getChannel(), key.getPage(), key.getSubPage(), -1, -1, -1, -1);
+	}
 	
-		props.put("Channel", Integer.toString(key.getChannel().getId()));
-		props.put("PageNr", Integer.toString(key.getPage()));
-		props.put("SubpageNr", Integer.toString(key.getSubPage()));
-		
-		return new PageInfo(props);
+	public static boolean matches(String line) {
+		if (pattern.matcher(line).matches()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public static PageInfo getDefault(EChannel channel) {
-		String json = "Txt.txtPage = {\"Id\":\"" + channel.getName() + "_100_01\",\"Channel\":" + channel.getId() + ",\"PageNr\":100,\"SubpageNr\":1,\"PageUrl\":\"~/SRF1/100-01.html\",\"NumberOfSubpages\":1,\"PreviousPageNr\":-1,\"NextPageNr\":101,\"PreviousSubpageNr\":-1,\"NextSubpageNr\":-1};";	
-		return parse(json);
-	}
-
-	private PageInfo(Map<String, String> properties) {
-		this.properties = properties;
-		this.links = new LinkedList<TouchableArea>();
+		return createFromKey(new PageKey(channel, DEFAULT_PAGE, DEFAULT_SUB_PAGE));
 	}
 
 	public int getPage() {
-		return getIntProperty("PageNr", DEFAULT_PAGE);
+		return page;
 	}
 
 	public int getSubPage() {
-		return getIntProperty("SubpageNr", DEFAULT_SUB_PAGE);
+		return subPage;
 	}
 
 	public int getPreviousPage() {
-		int page = getIntProperty("PreviousPageNr", DEFAULT_PAGE);
-		if (page == -1) {
-			return getPage() -1;
+		if (previousPage == -1) {
+			return page -1;
 		} else {
-			return page;
+			return previousPage;
 		}
 	}
 
 	public int getNextPage() {
-		int page = getIntProperty("NextPageNr", DEFAULT_PAGE);
-		if (page == -1) {
-			return getPage() + 1;
+		if (nextPage == -1) {
+			return page + 1;
 		} else {
-			return page;
+			return nextPage;
 		}
 	}
 
 	public int getPreviousSubPage() {
-		return getIntProperty("PreviousSubpageNr", -1);
+		return previousSubPage;
 	}
 
 	public int getNextSubPage() {
-		return getIntProperty("NextSubpageNr", -1);
+		return nextSubPage;
 	}
 
 	public EChannel getChannel() {
-		int channel = getIntProperty("Channel", 1);
-		return EChannel.getById(channel);
+		return channel;
 	}
 
 	public boolean hasPreviousPage() {
-		return getPage() > MIN_PAGE;
+		return page > MIN_PAGE;
 	}
 	
 	public boolean hasNextPage() {
-		return getPage() < MAX_PAGE;
+		return page < MAX_PAGE;
 	}
 	
 	public boolean hasPreviousSubPage() {
-		return getPreviousSubPage() != -1;
+		return previousSubPage != -1;
 	}
 
 	public boolean hasNextSubPage() {
-		return getNextSubPage() != -1;
+		return nextSubPage != -1;
 	}
 	
 	public List<TouchableArea> getLinks() {
@@ -122,20 +137,5 @@ public class PageInfo {
 
 	public void setLinks(List<TouchableArea> links) {
 		this.links.addAll(links);
-	}
-
-	private String getProperty(String key) {
-		return properties.get(key);
-	}
-
-	private int getIntProperty(String key, int defaultValue) {
-		String property = getProperty(key);
-		if (property != null) {
-			try {
-				return Integer.parseInt(property);
-			} catch (NumberFormatException e) {
-			}
-		}
-		return defaultValue;
 	}
 }
