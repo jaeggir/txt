@@ -74,8 +74,7 @@ public class RequestManager {
 						}
 					}
 				} catch (InterruptedException e) {
-					// TODO error handling
-					e.printStackTrace();
+					Thread.currentThread().interrupt();
 				}
 			}
 
