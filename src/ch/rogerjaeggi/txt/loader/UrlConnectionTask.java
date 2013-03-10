@@ -14,11 +14,10 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ch.rogerjaeggi.txt.EChannel;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import ch.rogerjaeggi.txt.EChannel;
 
 
 public class UrlConnectionTask extends LoadPageTask {
@@ -34,7 +33,7 @@ public class UrlConnectionTask extends LoadPageTask {
 	}
 
 	@Override
-	protected Bitmap loadImage(String urlToLoad) throws FileNotFoundException, IOException {
+	protected Bitmap loadImage(String urlToLoad) throws FileNotFoundException, IOException, CannotParseImageException {
 
 		URL url = new URL(urlToLoad);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -52,19 +51,10 @@ public class UrlConnectionTask extends LoadPageTask {
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			Bitmap bitmap = BitmapFactory.decodeByteArray(imgData, 0, imgData.length, options);
 			if (bitmap == null) {
-				throw new IOException("Couldn't decode image");
+				throw new CannotParseImageException("Couldn't decode image");
 			} else {
 				return bitmap;
 			}
-		} catch (FileNotFoundException e) {
-			throw e;
-//			Log.e(TAG, "Could not load Bitmap from: " + url);
-//			if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-//				throw new FileNotFoundException(urlToLoad);
-//			} else {
-//				Logging.d(this, "fetching page " + getKey() + " failed, error code: " + connection.getResponseCode());
-//				throw new IllegalArgumentException(urlToLoad);
-//			}
 		} finally {
 			try { 
 				dataStream.close(); 

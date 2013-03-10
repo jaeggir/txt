@@ -39,7 +39,7 @@ public abstract class LoadPageTask {
 		return key.isForceRefresh();
 	}
 
-	public TxtResult execute() throws PageNotFoundException, IOException {
+	public TxtResult execute() throws PageNotFoundException, CannotParseImageException, IOException {
 		if (!isForceRefresh() && TxtCache.contains(key)) {
 			return TxtCache.get(key);
 		} else {
@@ -70,20 +70,16 @@ public abstract class LoadPageTask {
 
 	protected abstract PageInfo loadPageInfo(String url) throws IOException, RedirectException;
 
-	protected abstract Bitmap loadImage(String url) throws FileNotFoundException, IOException;
+	protected abstract Bitmap loadImage(String url) throws FileNotFoundException, IOException, CannotParseImageException;
 
 	protected PageInfo parsePage(BufferedReader br) throws IOException {
-
 		PageInfo pageInfo = createFromKey(key);
 		List<TouchableArea> links = new ArrayList<TouchableArea>();
 		String line = null;
 		boolean start = false;
 		while ((line = br.readLine()) != null) {
-			if (start && line.contains("<area")) {
-				TouchableArea area = getAreaFromLine(line);
-				if (area != null) {
-					links.add(area);
-				}
+			if (start &&  pattern.matcher(line).matches()) {
+				links.add(getAreaFromLine(line));
 			}
 			if (line.contains("map") && line.contains("blacktxt_links_" + max(0, key.getSubPage() - 1))) {
 				start = true;
@@ -107,7 +103,7 @@ public abstract class LoadPageTask {
 			Rect area = new Rect(parseInt(matcher.group(2)) - 2, parseInt(matcher.group(3)) - 2, parseInt(matcher.group(4)) + 2, parseInt(matcher.group(5)) + 2);
 			return new TouchableArea(area, page, subPage);
 		} else {
-			return null;
+			throw new IllegalArgumentException("Cannot parse area. Did you call matches() before?");
 		}
 	}
 

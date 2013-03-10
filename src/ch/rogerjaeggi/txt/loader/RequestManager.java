@@ -1,6 +1,7 @@
 package ch.rogerjaeggi.txt.loader;
 
 import static ch.rogerjaeggi.txt.loader.EErrorType.CONNECTION_PROBLEM;
+import static ch.rogerjaeggi.txt.loader.EErrorType.OTHER_PROBLEM;
 import static ch.rogerjaeggi.txt.loader.EErrorType.PAGE_NOT_FOUND;
 import static ch.rogerjaeggi.txt.loader.LoadPageTaskFactory.createTask;
 import static ch.rogerjaeggi.txt.loader.PageInfo.createFromKey;
@@ -63,11 +64,11 @@ public class RequestManager {
 								TxtResult result = task.execute();
 								notifyListener(result);
 							} catch (PageNotFoundException e) {
-								Logging.d(this, "PageNotFound", e);
 								notifyListener(e.getPageInfo(), PAGE_NOT_FOUND);
 							} catch (IOException e) {
-								Logging.d(this, "IOE", e);
 								notifyListener(createFromKey(key), CONNECTION_PROBLEM);
+							} catch (CannotParseImageException e) {
+								notifyListener(createFromKey(key), OTHER_PROBLEM);
 							} finally {
 								requestInProgress = false;
 							}
