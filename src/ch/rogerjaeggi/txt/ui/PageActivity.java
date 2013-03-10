@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
@@ -249,7 +250,16 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		
 		if (!progressDialogOnScreen && !TxtCache.contains(key)) {
 			// only show dialog if we have to fetch the page from SwissTXT
-			showDialog(DIALOG_LOADING);
+			new Handler().postDelayed(new Runnable() {
+
+				@Override
+				public void run() {
+					if (getRequestManager().hasRequestInProgress()) {
+						showDialog(DIALOG_LOADING);
+					}
+				}
+				
+			}, 250);
 		}
 
 		getRequestManager().requestPage(key);
@@ -277,7 +287,11 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			refreshMenuUpdater.getMenuItem().setActionView(null);
 		}
 
-		removeDialog(DIALOG_LOADING);
+		try {
+			removeDialog(DIALOG_LOADING);
+		} catch (IllegalArgumentException e) {
+			// ignore, exception was thrown until GINGERBREAD
+		}
 		progressDialogOnScreen = false;
 	}
 
