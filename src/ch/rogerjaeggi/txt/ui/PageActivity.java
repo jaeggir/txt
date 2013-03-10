@@ -60,6 +60,8 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class PageActivity extends SherlockActivity implements OnClickListener, IRequestListener {
 
+	private static final int PROGRESS_DIALOG_DELAY = 150;
+
 	private static final String KEY_DIALOG_ON_SCREEN = "dialogOnScreen";
 	
 	private static final int DIALOG_CREDITS = 1;
@@ -259,7 +261,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 					}
 				}
 				
-			}, 250);
+			}, PROGRESS_DIALOG_DELAY);
 		}
 
 		getRequestManager().requestPage(key);
