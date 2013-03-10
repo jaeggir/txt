@@ -19,7 +19,7 @@ public class TxtCache {
 		if (result == null) {
 			if (key.getSubPage() == 0) {
 				// some pages start with sub page 1, not 0
-				return get(PageKeyFactory.fromKey(key, "1"));
+				return get(new PageKey(key.getChannel(), key.getPage(), 1));
 			}
 			return null;
 		} else if (result.isValid(CACHE_MAX_AGE)) {
@@ -35,7 +35,7 @@ public class TxtCache {
 		if (result == null) {
 			if (key.getSubPage() == 0) {
 				// some pages start with sub page 1, not 0
-				return contains(PageKeyFactory.fromKey(key, "1"));
+				return contains(new PageKey(key.getChannel(), key.getPage(), 1));
 			}
 			return false;
 		} else if (result.isValid(CACHE_MAX_AGE)) {
@@ -49,7 +49,8 @@ public class TxtCache {
 	public static void remove(PageKey key) {
 		mMemoryCache.remove(key);
 		if (key.getSubPage() == 0) {
-			mMemoryCache.remove(PageKeyFactory.fromKey(key, "1"));
+			// some pages start with sub page 1, not 0
+			mMemoryCache.remove(new PageKey(key.getChannel(), key.getPage(), 1));
 		}
 		
 	}

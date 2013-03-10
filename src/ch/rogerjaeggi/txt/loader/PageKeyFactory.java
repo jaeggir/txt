@@ -2,7 +2,6 @@ package ch.rogerjaeggi.txt.loader;
 
 import static ch.rogerjaeggi.txt.Constants.DEFAULT_PAGE;
 import static ch.rogerjaeggi.txt.Constants.DEFAULT_SUB_PAGE;
-import static java.lang.Integer.parseInt;
 import ch.rogerjaeggi.txt.EChannel;
 
 
@@ -10,15 +9,6 @@ public class PageKeyFactory {
 	
 	public static PageKey getDefault(EChannel channel) {
 		return new PageKey(channel, DEFAULT_PAGE, DEFAULT_SUB_PAGE);
-	}
-	
-	public static PageKey fromKey(PageKey key, String newSubPage) {
-		try {
-			return new PageKey(key.getChannel(), key.getPage(), parseInt(newSubPage));
-		} catch (NumberFormatException e) {
-			// TODO handle error and think about correct location for this method
-			throw new IllegalArgumentException();
-		}
 	}
 	
 	public static PageKey getPreviousPageKey(PageInfo info) {
