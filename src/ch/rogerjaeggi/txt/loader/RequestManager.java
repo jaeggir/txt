@@ -66,6 +66,10 @@ public class RequestManager {
 								}
 								notifyListener(result, key.isNotifyUi());
 							} catch (PageNotFoundException e) {
+								PageInfo pageInfo = e.getPageInfo();
+								if (key.isNotifyUi()) {
+									requestPage(new PageKey(pageInfo.getChannel(), pageInfo.getNextPage(), DEFAULT_SUB_PAGE, false, false));
+								}
 								notifyListener(e.getPageInfo(), PAGE_NOT_FOUND, key.isNotifyUi());
 							} catch (MalformedURLException e) {
 								notifyListener(createFromKey(key), OTHER_PROBLEM, key.isNotifyUi());

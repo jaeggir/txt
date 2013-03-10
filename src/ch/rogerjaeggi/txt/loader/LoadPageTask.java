@@ -47,7 +47,12 @@ public abstract class LoadPageTask {
 
 	public TxtResult execute() throws PageNotFoundException, CannotParseImageException, URISyntaxException, IOException {
 		if (!isForceRefresh() && TxtCache.contains(key)) {
-			return TxtCache.get(key);
+			TxtResult result = TxtCache.get(key);
+			if (result.getBitmap() != null) {
+				return result;
+			} else {
+				throw new PageNotFoundException(result.getPageInfo());
+			}
 		} else {
 			try {
 				PageInfo pageInfo = loadPageInfo(getPageUrl());
@@ -57,6 +62,8 @@ public abstract class LoadPageTask {
 					TxtCache.put(key, result);
 					return result;
 				} catch (FileNotFoundException e) {
+					TxtResult result = new TxtResult(pageInfo, null);
+					TxtCache.put(key, result);
 					throw new PageNotFoundException(pageInfo);
 				}
 			} catch (RedirectException e) {
