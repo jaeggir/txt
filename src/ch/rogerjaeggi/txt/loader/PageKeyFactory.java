@@ -20,7 +20,7 @@ public class PageKeyFactory {
 	}
 
 	public static PageKey getPageKey(PageInfo info, boolean forceRefresh) {
-		return new PageKey(info.getChannel(), info.getPage(), info.getSubPage(), forceRefresh);
+		return new PageKey(info.getChannel(), info.getPage(), info.getSubPage(), forceRefresh, true);
 	}
 
 	public static PageKey getPreviousSubPageKey(PageInfo info) {

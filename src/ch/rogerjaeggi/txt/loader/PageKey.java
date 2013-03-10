@@ -13,15 +13,18 @@ public class PageKey {
 	
 	private final boolean forceRefresh;
 	
+	private final boolean notifyUi;
+	
 	public PageKey(EChannel channel, int page, int subPage) {
-		this(channel, page, subPage, false);
+		this(channel, page, subPage, false, true);
 	}
 	
-	public PageKey(EChannel channel, int page, int subPage, boolean forceRefresh) {
+	public PageKey(EChannel channel, int page, int subPage, boolean forceRefresh, boolean notifyUi) {
 		this.channel = channel;
 		this.page = page;
 		this.subPage = subPage;
 		this.forceRefresh = forceRefresh;
+		this.notifyUi = notifyUi;
 	}
 	
 	public EChannel getChannel() {
@@ -38,6 +41,10 @@ public class PageKey {
 	
 	public boolean isForceRefresh() {
 		return forceRefresh;
+	}
+	
+	public boolean isNotifyUi() {
+		return notifyUi;
 	}
 	
 	@Override

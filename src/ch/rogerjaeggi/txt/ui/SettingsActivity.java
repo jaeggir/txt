@@ -51,30 +51,6 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 			}
 		});
         root.addPreference(channelPref);
-        
-        // preload pages preference
-        final ListPreference preloadPagesPref = new ListPreference(this);
-        preloadPagesPref.setEntries(new String[] {"0", "1", "2", "3", "4", "5"});
-        preloadPagesPref.setEntryValues(new String[] {"0", "1", "2", "3", "4", "5"});
-        preloadPagesPref.setDefaultValue(Settings.getPreloadPagesSetting(this));
-        preloadPagesPref.setDialogTitle(R.string.prefsPreloadPagesDialogTitle);
-        preloadPagesPref.setTitle(R.string.prefsPreloadPagesTitle);
-        preloadPagesPref.setSummary(String.format(getString(R.string.prefsPreloadPagesSummary), Settings.getPreloadPagesSetting(this)));
-        preloadPagesPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				String preloadPages = (String) newValue;
-				if (!preloadPages.equals(Settings.getPreloadPagesSetting(SettingsActivity.this))) {
-					Settings.storePreloadPagesSetting(SettingsActivity.this, preloadPages);
-					preference.setSummary(String.format(getString(R.string.prefsPreloadPagesSummary), preloadPages));
-					setResult(Activity.RESULT_OK);
-				}
-				return true;
-			}
-		});
-        root.addPreference(preloadPagesPref);
-        
         return root;
 	}
 	

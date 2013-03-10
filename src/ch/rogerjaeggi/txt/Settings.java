@@ -11,7 +11,6 @@ public class Settings {
 
 	private static final String PREFS = "txtPrefs";
 	private static final String KEY_CHANNEL = "key.channel";
-	private static final String KEY_PRELOAD_PAGES = "key.preloadPages";
 			
 	private static Method sApplyMethod = findApplyMethod();
 	
@@ -27,17 +26,6 @@ public class Settings {
 		Editor editor = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
 		editor.putInt(KEY_CHANNEL, channel.getId());
         apply(editor);	
-	}
-
-	public static void storePreloadPagesSetting(Context context, String preloadPages) {
-		Editor editor = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
-		editor.putString(KEY_PRELOAD_PAGES, preloadPages);
-        apply(editor);	
-	}
-	
-	public static String getPreloadPagesSetting(Context context) {
-		SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-		return prefs.getString(KEY_PRELOAD_PAGES, "1");
 	}
 	
 	private static Method findApplyMethod() {

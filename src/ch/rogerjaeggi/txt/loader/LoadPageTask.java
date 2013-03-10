@@ -25,7 +25,7 @@ public abstract class LoadPageTask {
 
 	private static final Pattern redirectPattern = Pattern.compile("/(.*)/(\\d{3})-(\\d{2}).html");
 
-	private static final Pattern areaPattern = compile("<area href=\"/\\w+/\\d{3}-(\\d{2}).html\".*coords=\"(\\d+),(\\d+),(\\d+),(\\d+)\" alt=\"(\\d{3})\" />");
+	private static final Pattern areaPattern = compile(".*<area href=\"/\\w+/\\d{3}-(\\d{2}).html\".*coords=\"(\\d+),(\\d+),(\\d+),(\\d+)\" alt=\"(\\d{3})\" />.*");
 
 	protected static final String TAG = "txt.pageActivity";
 
@@ -130,7 +130,7 @@ public abstract class LoadPageTask {
 			EChannel channel = EChannel.getByUrl(matcher.group(1));
 			int page = parseInt(matcher.group(2));
 			int subPage = parseInt(matcher.group(3));
-			PageKey pageKey = new PageKey(channel, page, subPage, getKey().isForceRefresh());
+			PageKey pageKey = new PageKey(channel, page, subPage, getKey().isForceRefresh(), getKey().isNotifyUi());
 			return new RedirectException(pageKey);
 		} else {
 			return new IOException("Redirect to malformed redirect - URL detected. URL=" + path);

@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
@@ -59,8 +58,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class PageActivity extends SherlockActivity implements OnClickListener, IRequestListener {
-
-	private static final int PROGRESS_DIALOG_DELAY = 150;
 
 	private static final String KEY_DIALOG_ON_SCREEN = "dialogOnScreen";
 	
@@ -252,16 +249,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 		
 		if (!progressDialogOnScreen && !TxtCache.contains(key)) {
 			// only show dialog if we have to fetch the page from SwissTXT
-			new Handler().postDelayed(new Runnable() {
-
-				@Override
-				public void run() {
-					if (getRequestManager().hasRequestInProgress()) {
-						showDialog(DIALOG_LOADING);
-					}
-				}
-				
-			}, PROGRESS_DIALOG_DELAY);
+			showDialog(DIALOG_LOADING);
 		}
 
 		getRequestManager().requestPage(key);
@@ -298,7 +286,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	}
 
 	private void startRefreshIndicators() {
-		if (refreshMenuUpdater != null) {
+		if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() == null) {
 			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			ImageView iv = (ImageView) inflater.inflate(R.layout.refresh_action_view, null);
 
@@ -307,6 +295,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			iv.startAnimation(rotation);
 
 			refreshMenuUpdater.getMenuItem().setActionView(iv);
+		} else if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() == null) {
+			System.out.println("GOT YOU, MOTHERFUCKER!!!");
 		}
 	}
 
