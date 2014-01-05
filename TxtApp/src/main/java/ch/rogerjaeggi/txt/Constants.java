@@ -9,7 +9,6 @@ public class Constants {
 	public static final String EXTRA_PAGE = "extra.page";
 	public static final String EXTRA_SUB_PAGE = "extra.subPage";
 	public static final String EXTRA_REFRESH = "extra.refresh";
-	public static final String EXTRA_REQUESTED_PAGE = "extra.requestedPage";
 	
 	public static final int DEFAULT_PAGE = 100;
 	public static final int DEFAULT_SUB_PAGE = 0;
