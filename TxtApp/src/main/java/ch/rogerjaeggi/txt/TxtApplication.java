@@ -1,14 +1,15 @@
 package ch.rogerjaeggi.txt;
 
+import android.app.Application;
+import android.os.Build;
+
 import java.io.File;
 import java.util.Stack;
 
-import android.app.Application;
-import android.os.Build;
 import ch.rogerjaeggi.txt.loader.PageInfo;
 import ch.rogerjaeggi.txt.loader.PageKey;
 import ch.rogerjaeggi.txt.loader.RequestManager;
-import ch.rogerjaeggi.utils.Logging;
+import ch.rogerjaeggi.txt.utils.Logging;
 
 
 public class TxtApplication extends Application {
