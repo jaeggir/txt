@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/TXT.iml" filepath="$PROJECT_DIR$/TXT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TxtApp/TxtApp.iml" filepath="$PROJECT_DIR$/TxtApp/TxtApp.iml" />
+    </modules>
+  </component>
+</project>
+

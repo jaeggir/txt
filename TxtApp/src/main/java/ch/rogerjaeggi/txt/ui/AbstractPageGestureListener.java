@@ -1,16 +1,18 @@
 package ch.rogerjaeggi.txt.ui;
 
+import android.content.Intent;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.MotionEvent;
+
+import ch.rogerjaeggi.txt.loader.PageInfo;
+import ch.rogerjaeggi.txt.utils.Logging;
+
 import static ch.rogerjaeggi.txt.Constants.GO_TO_CODE;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextSubPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPreviousPageKey;
 import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPreviousSubPageKey;
-import android.content.Intent;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.MotionEvent;
-import ch.rogerjaeggi.txt.loader.PageInfo;
-import ch.rogerjaeggi.utils.Logging;
 
 
 public abstract class AbstractPageGestureListener extends SimpleOnGestureListener {

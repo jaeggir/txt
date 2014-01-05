@@ -1,19 +1,19 @@
 package ch.rogerjaeggi.txt.loader;
 
-import static ch.rogerjaeggi.txt.Constants.DEFAULT_SUB_PAGE;
-import static ch.rogerjaeggi.txt.loader.EErrorType.CONNECTION_PROBLEM;
-import static ch.rogerjaeggi.txt.loader.EErrorType.OTHER_PROBLEM;
-import static ch.rogerjaeggi.txt.loader.EErrorType.PAGE_NOT_FOUND;
-import static ch.rogerjaeggi.txt.loader.LoadPageTaskFactory.createTask;
-import static ch.rogerjaeggi.txt.loader.PageInfo.createFromKey;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import ch.rogerjaeggi.utils.Logging;
+import ch.rogerjaeggi.txt.utils.Logging;
+
+import static ch.rogerjaeggi.txt.Constants.DEFAULT_SUB_PAGE;
+import static ch.rogerjaeggi.txt.loader.EErrorType.CONNECTION_PROBLEM;
+import static ch.rogerjaeggi.txt.loader.EErrorType.OTHER_PROBLEM;
+import static ch.rogerjaeggi.txt.loader.EErrorType.PAGE_NOT_FOUND;
+import static ch.rogerjaeggi.txt.loader.LoadPageTaskFactory.createTask;
+import static ch.rogerjaeggi.txt.loader.PageInfo.createFromKey;
 
 public class RequestManager {
 

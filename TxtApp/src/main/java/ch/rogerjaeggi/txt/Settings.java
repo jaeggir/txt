@@ -30,7 +30,7 @@ public class Settings {
 	
 	private static Method findApplyMethod() {
 		try {
-			Class<?> cls = SharedPreferences.Editor.class;
+			Class<?> cls = Editor.class;
 			return cls.getMethod("apply");
 		} catch (NoSuchMethodException unused) {
 			// fall through, apply is not available before API level 9
@@ -38,7 +38,7 @@ public class Settings {
 		return null;
 	}
 
-	private static void apply(final SharedPreferences.Editor editor) {
+	private static void apply(final Editor editor) {
         if (sApplyMethod != null) {
             try {
                 sApplyMethod.invoke(editor);
