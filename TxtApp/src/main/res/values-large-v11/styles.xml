@@ -1,7 +1,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppTheme" parent="android:Theme.Holo" />
-
     <style name="GoToTheme" parent="android:Theme.Holo.Dialog" />
 
     <style name="SettingsTheme" parent="android:Theme.Holo" />

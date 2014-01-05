@@ -1,8 +1,8 @@
 package ch.rogerjaeggi.txt.menu;
 
-import ch.rogerjaeggi.txt.loader.PageInfo;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.view.MenuItem;
+import ch.rogerjaeggi.txt.loader.PageInfo;
 
 
 public class RefreshMenuUpdater implements MenuUpdater {

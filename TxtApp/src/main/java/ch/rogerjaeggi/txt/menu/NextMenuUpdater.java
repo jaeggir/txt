@@ -1,9 +1,9 @@
 package ch.rogerjaeggi.txt.menu;
 
+import android.view.MenuItem;
+
 import ch.rogerjaeggi.txt.R;
 import ch.rogerjaeggi.txt.loader.PageInfo;
-
-import com.actionbarsherlock.view.MenuItem;
 
 
 public class NextMenuUpdater implements MenuUpdater {

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppTheme" parent="Theme.Sherlock.Light.DarkActionBar">
-    	<item name="android:windowBackground">@android:color/black</item>
+    <style name="Theme.Txt" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowBackground">@android:color/black</item>
     </style>
+
+    <style name="ActionButtonStyle" parent="Widget.AppCompat.Base.ActionButton" />
     
     <style name="GoToTheme" parent="android:Theme.Dialog" />
-
-    <style name="SettingsTheme" parent="Theme.Sherlock.Light.DarkActionBar" />
 
     <style name="MyProgressDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>

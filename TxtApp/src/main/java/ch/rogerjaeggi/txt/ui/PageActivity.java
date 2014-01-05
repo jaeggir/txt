@@ -1,43 +1,29 @@
 package ch.rogerjaeggi.txt.ui;
 
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-import static android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE;
-import static android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK;
-import static ch.rogerjaeggi.txt.Constants.EXTRA_PAGE;
-import static ch.rogerjaeggi.txt.Constants.EXTRA_REFRESH;
-import static ch.rogerjaeggi.txt.Constants.EXTRA_SUB_PAGE;
-import static ch.rogerjaeggi.txt.Constants.GO_TO_CODE;
-import static ch.rogerjaeggi.txt.Constants.DEFAULT_PAGE;
-import static ch.rogerjaeggi.txt.Constants.DEFAULT_SUB_PAGE;
-import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextPageKey;
-import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPageKey;
-import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPreviousPageKey;
-
-import java.util.Calendar;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
+
+import java.util.Calendar;
+
 import ch.rogerjaeggi.txt.EChannel;
 import ch.rogerjaeggi.txt.R;
-import ch.rogerjaeggi.txt.R.anim;
 import ch.rogerjaeggi.txt.Settings;
 import ch.rogerjaeggi.txt.TxtApplication;
 import ch.rogerjaeggi.txt.loader.EErrorType;
@@ -53,11 +39,20 @@ import ch.rogerjaeggi.txt.menu.NextMenuUpdater;
 import ch.rogerjaeggi.txt.menu.PrevMenuUpdater;
 import ch.rogerjaeggi.txt.menu.RefreshMenuUpdater;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE;
+import static android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK;
+import static ch.rogerjaeggi.txt.Constants.DEFAULT_PAGE;
+import static ch.rogerjaeggi.txt.Constants.DEFAULT_SUB_PAGE;
+import static ch.rogerjaeggi.txt.Constants.EXTRA_PAGE;
+import static ch.rogerjaeggi.txt.Constants.EXTRA_REFRESH;
+import static ch.rogerjaeggi.txt.Constants.EXTRA_SUB_PAGE;
+import static ch.rogerjaeggi.txt.Constants.GO_TO_CODE;
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getNextPageKey;
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPageKey;
+import static ch.rogerjaeggi.txt.loader.PageKeyFactory.getPreviousPageKey;
 
-public class PageActivity extends SherlockActivity implements OnClickListener, IRequestListener {
+public class PageActivity extends ActionBarActivity implements OnClickListener, IRequestListener {
 
 	private static final String KEY_DIALOG_ON_SCREEN = "dialogOnScreen";
 	
@@ -139,9 +134,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-
-		getSupportMenuInflater().inflate(R.menu.activity_page, menu);
+        getMenuInflater().inflate(R.menu.activity_page, menu);
 		return true;
 	}
 
@@ -208,7 +201,8 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		PageInfo currentPageInfo = getCurrentPageInfo();
+
+        PageInfo currentPageInfo = getCurrentPageInfo();
 
 		prevMenuUpdater = new PrevMenuUpdater(menu.findItem(R.id.menu_backwards));
 		prevMenuUpdater.update(currentPageInfo);
@@ -286,7 +280,7 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 	}
 
 	private void startRefreshIndicators() {
-		if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() == null) {
+		/*if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() == null) {
 			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			ImageView iv = (ImageView) inflater.inflate(R.layout.refresh_action_view, null);
 
@@ -294,10 +288,11 @@ public class PageActivity extends SherlockActivity implements OnClickListener, I
 			rotation.setRepeatCount(Animation.INFINITE);
 			iv.startAnimation(rotation);
 
+            MenuItemCompat.setActionView(refreshMenuUpdater, iv);
 			refreshMenuUpdater.getMenuItem().setActionView(iv);
 		} else if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() == null) {
 			System.out.println("GOT YOU, MOTHERFUCKER!!!");
-		}
+		}*/
 	}
 
 	@Override

@@ -1,33 +1,34 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:support="http://schemas.android.com/apk/res-auto">
         
     <item android:id="@+id/menu_backwards"
         android:title="@string/menu_backwards"
         android:orderInCategory="1"
-        android:showAsAction="always"
+        support:showAsAction="always"
         android:icon="@drawable/ic_find_previous_holo_dark" />
     
     <item android:id="@+id/menu_forewards"
         android:title="@string/menu_forewards"
         android:orderInCategory="2"
-        android:showAsAction="always"
+        support:showAsAction="always"
         android:icon="@drawable/ic_find_next_holo_dark" />
     
     <item android:id="@+id/menu_refresh"
         android:title="@string/menu_refresh"
         android:orderInCategory="3"
-        android:showAsAction="always"
+        support:showAsAction="always"
         android:icon="@drawable/ic_menu_refresh" />
         
 	<item android:id="@+id/menu_credits"
         android:title="@string/menu_credits"
         android:orderInCategory="4"
-        android:showAsAction="never"
+        support:showAsAction="never"
         android:icon="@drawable/ic_dialog_info" />
     
     <item android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        support:showAsAction="never"
         android:icon="@android:drawable/ic_menu_preferences" />
     
 </menu>
