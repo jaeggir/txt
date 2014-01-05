@@ -4,11 +4,8 @@
     <string name="menu_backwards">Last Page</string>
     <string name="menu_forewards">Next Page</string>
     <string name="menu_refresh">Refresh</string>
-    <string name="menu_goto">Go To</string>
     <string name="menu_credits">Credits</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_page">Teletext</string>
-    <string name="loading">Loading…</string>
     <string name="page">SwissTXT page</string>
     <string name="credits_programming">Programming</string>
 	<string name="credits_data">Data</string>
@@ -18,13 +15,6 @@
 	<string name="prefsChannelDialogTitle">Choose your channel</string>
 	<string name="prefsChannelTitle">Channel</string>
 	<string name="prefsChannelSummary">Current channel: %s</string>
-	<string name="prefsClickableNumbersTitle">Enable Clickable Page Numbers</string>
-	<string name="prefsPreloadPagesDialogTitle">Choose how many pages to preload</string>
-	<string name="prefsPreloadPagesTitle">Preload of pages</string>
-	<string name="prefsPreloadPagesSummary">Preloading %s pages.</string>	
-	<string name="stateDisabled">Disabled</string>
-	<string name="stateWifi">Only when connected to WiFi</string>
-	<string name="stateAlways">Always</string>
 	
 	
 </resources>

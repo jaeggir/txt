@@ -4,19 +4,19 @@
     <item android:id="@+id/menu_backwards"
         android:title="@string/menu_backwards"
         android:orderInCategory="1"
-        support:showAsAction="always"
+        support:showAsAction="ifRoom"
         android:icon="@drawable/ic_find_previous_holo_dark" />
     
     <item android:id="@+id/menu_forewards"
         android:title="@string/menu_forewards"
         android:orderInCategory="2"
-        support:showAsAction="always"
+        support:showAsAction="ifRoom"
         android:icon="@drawable/ic_find_next_holo_dark" />
     
     <item android:id="@+id/menu_refresh"
         android:title="@string/menu_refresh"
         android:orderInCategory="3"
-        support:showAsAction="always"
+        support:showAsAction="ifRoom"
         android:icon="@drawable/ic_menu_refresh" />
         
 	<item android:id="@+id/menu_credits"
