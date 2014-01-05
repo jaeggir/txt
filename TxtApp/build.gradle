@@ -22,13 +22,61 @@ android {
         versionCode 1
         versionName "1.0"
     }
-    buildTypes {
+
+    signingConfigs {
+
         release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            storeFile file("txt-release.keystore")
+            keyAlias "txt"
+
+            // These two lines make gradle believe that the signingConfigs
+            // section is complete. Without them, tasks like installRelease
+            // will not be available!
+            storePassword "notMyRealPassword"
+            keyPassword "notMyRealPassword"
         }
     }
+
+    buildTypes {
+        release {
+            debuggable false
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-rules.txt')
+            signingConfig signingConfigs.release
+        }
+        debug {
+            debuggable true
+            runProguard false
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/CONTRIBUTORS.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/COPYING'
+        exclude 'META-INF/COPYING.LESSER'
+    }
 }
+
+task askForPasswords << {
+    // Must create String because System.readPassword() returns char[]
+    // (and assigning that below fails silently)
+    def pw = new String(System.console().readPassword("\n\$ Keystore password: "))
+
+    android.signingConfigs.release.storePassword = pw
+    android.signingConfigs.release.keyPassword = pw
+}
+
+tasks.whenTaskAdded { theTask ->
+    if (theTask.name.equals("packageRelease")) {
+        theTask.dependsOn "askForPasswords"
+    }
+}
+
 
 dependencies {
     compile 'com.android.support:support-v4:18.0.+'
