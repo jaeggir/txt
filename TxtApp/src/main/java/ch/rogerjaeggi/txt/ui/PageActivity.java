@@ -2,20 +2,25 @@ package ch.rogerjaeggi.txt.ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
@@ -266,9 +271,9 @@ public class PageActivity extends ActionBarActivity implements OnClickListener, 
 	}
 
 	private void cancelRefreshIndicators() {
-		if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() != null) {
-			refreshMenuUpdater.getMenuItem().getActionView().clearAnimation();
-			refreshMenuUpdater.getMenuItem().setActionView(null);
+		if (refreshMenuUpdater != null && MenuItemCompat.getActionView(refreshMenuUpdater.getMenuItem()) != null) {
+            MenuItemCompat.getActionView(refreshMenuUpdater.getMenuItem()).clearAnimation();
+            MenuItemCompat.setActionView(refreshMenuUpdater.getMenuItem(), null);
 		}
 
 		try {
@@ -280,19 +285,18 @@ public class PageActivity extends ActionBarActivity implements OnClickListener, 
 	}
 
 	private void startRefreshIndicators() {
-		/*if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() == null) {
+		if (refreshMenuUpdater != null && MenuItemCompat.getActionView(refreshMenuUpdater.getMenuItem()) == null) {
 			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			ImageView iv = (ImageView) inflater.inflate(R.layout.refresh_action_view, null);
 
-			Animation rotation = AnimationUtils.loadAnimation(this, anim.refresh_animation);
+			Animation rotation = AnimationUtils.loadAnimation(this, R.anim.refresh_animation);
 			rotation.setRepeatCount(Animation.INFINITE);
 			iv.startAnimation(rotation);
 
-            MenuItemCompat.setActionView(refreshMenuUpdater, iv);
-			refreshMenuUpdater.getMenuItem().setActionView(iv);
-		} else if (refreshMenuUpdater != null && refreshMenuUpdater.getMenuItem().getActionView() == null) {
+            MenuItemCompat.setActionView(refreshMenuUpdater.getMenuItem(), iv);
+		} else if (refreshMenuUpdater != null && MenuItemCompat.getActionView(refreshMenuUpdater.getMenuItem()) == null) {
 			System.out.println("GOT YOU, MOTHERFUCKER!!!");
-		}*/
+		}
 	}
 
 	@Override
